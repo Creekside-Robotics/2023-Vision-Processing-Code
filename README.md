@@ -15,7 +15,7 @@ There is some software that you will need to work on the project.
 
 - Install the latest version of python [here](https://www.python.org/)
 - Install tensorflow using the following command `python3 -m pip install tensorflow`
-- Install opencv using the following command `pip install cv2`
+- Install opencv using the following command `pip install opencv-python`
 - Install numpy using the following command `pip install numpy`
 - Install pynetworktables using the following command `pip install pynetworktables`
 
