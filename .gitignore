@@ -2,3 +2,5 @@
 venv
 .replit
 replit.nix
+.vscode
+.idea
