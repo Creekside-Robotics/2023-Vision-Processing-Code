@@ -1,5 +1,4 @@
 import math
-
 import cv2
 import numpy as np
 
@@ -18,6 +17,9 @@ class Camera:
         self.translational_offset = translational_offset
         self.rotational_offset = rotational_offset
         self.center = (resolution[0]/2, resolution[1]/2)
+
+        # If there was a vertical line, extending from the center of the image,
+        # allowing us to see shape of the camera capture, this would be it's height in pixels.
         self.center_pixel_height = (1/math.atan(fov/2))*math.sqrt((resolution[0]/2)**2 + (resolution[1]/2)**2)
 
     def get_frame(self):
