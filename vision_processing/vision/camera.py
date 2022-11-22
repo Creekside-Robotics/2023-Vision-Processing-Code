@@ -44,7 +44,7 @@ class Camera:
         """
         return self.input_feed.grab()
 
-    def get_dynamic_object(
+    def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
     ):
         """
