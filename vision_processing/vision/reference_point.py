@@ -1,6 +1,4 @@
 import math
-import numpy as np
-import pupil_apriltags.bindings
 import pyapriltags
 
 from vision_processing.field.field import GameField
@@ -15,7 +13,7 @@ class ReferencePoint:
         self.poseToField = poseToField
 
     @classmethod
-    def from_image(
+    def from_apriltags(
         cls, camera: Camera
     ) -> list["ReferencePoint"]:
         """
