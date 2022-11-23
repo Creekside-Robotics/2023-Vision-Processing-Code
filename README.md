@@ -18,6 +18,7 @@ There is some software that you will need to work on the project.
 - Install opencv using the following command `pip install opencv-python`
 - Install numpy using the following command `pip install numpy`
 - Install pynetworktables using the following command `pip install pynetworktables`
+- Install pyapriltags using the following command `pip install pyapriltags`
 
 ## Documentation for WPILIB and other libraries
 Documentation for of the important libraries used in this project.
