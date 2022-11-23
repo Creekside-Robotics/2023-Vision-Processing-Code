@@ -61,5 +61,5 @@ class ReferencePoint:
             poseRelativeToField = GameField().reference_points.get(detection.tag_id)
 
             referencePoints.append(ReferencePoint(poseRelativeToRobot, poseRelativeToField))
-
+        return referencePoints
 
