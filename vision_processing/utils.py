@@ -13,9 +13,3 @@ class Translation(NamedTuple):
     y: float
     absolute: bool = False
     """Whether the coordinates are relative to the field or the camera"""
-
-class Pose:
-    def __init__(self, x: float, y: float, rot: float) -> None:
-        self.x = x
-        self.y = y
-        self.rot = rot
