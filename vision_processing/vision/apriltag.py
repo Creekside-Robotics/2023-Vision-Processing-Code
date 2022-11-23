@@ -1,65 +1,65 @@
-import cv2
+import math
 import numpy as np
-from pupil_apriltags import Detection, Detector
+import pupil_apriltags.bindings
+import pyapriltags
 
-from ..utils import Pixel
+from vision_processing.field.field import GameField
+from .. import Camera
+from ..utils import Pose
+import cv2
 
-DETECTOR_OPTIONS = dict(families="tag16h5")
-DETECT_OPTIONS: dict = dict(tag_size=0.2)
 
-
-class AprilTag:
-    def __init__(self, detection: Detection):
-        self.detection = detection
-
-    @property
-    def center(self) -> Pixel:
-        """The center of the detected tag"""
-        return Pixel(*self.detection.center)
-
-    @property
-    def corners(self) -> list[Pixel]:
-        """The corners of the detected tag"""  # todo better specify the order of the corners
-        return [Pixel(*corner) for corner in self.detection.corners]
-
-    @property
-    def tag_id(self) -> int:
-        """The id of the detected tag"""
-        return self.tag_id
+class ReferencePoint:
+    def __init__(self, poseToRobot: Pose, poseToField: Pose):
+        self.poseToRobot = poseToRobot
+        self.poseToField = poseToField
 
     @classmethod
     def from_image(
-        cls, image: np.ndarray, camera_params: tuple = None
-    ) -> list["AprilTag"]:
+        cls, camera: Camera
+    ) -> list["ReferencePoint"]:
         """
-        Create a new Apriltag from an image
-
-        :param image: The image to create from, as a numpy array
-        :type image: np.ndarray
-        :param camera_params: The camera information to pass to the detection.
-        Should be a tuple of (focal_length x, focal_length y, focal_center x, focal_center y).
-        For a Camera instance, focal_length should be `self.center_pixel_height` and focal_center should be `self.center`
-        :type camera_params: tuple
-        :return: The Apriltag instance based off the image
-        :rtype: AprilTag
+        Create a List of ReferencePoint from an image
+        :rtype ReferencePoint
         """
-        if not isinstance(image, np.ndarray):
-            raise TypeError(
-                f"image must be an instance of np.ndarray, not {image.__class__.__name__!r}"
-            )
+        detector = pyapriltags.apriltags.Detector(GameField.apriltag_family)
+        image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
 
-        if len(image.shape) == 3:
-            # Convert colored images to greyscale, since that's what the detector wants
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        detections = detector.detect(
+            image, 
+            estimate_tag_pose=True, 
+            camera_params=(
+                camera.center_pixel_height, 
+                camera.center_pixel_height, 
+                camera.center.x, 
+                camera.center.y
+            ),
+            tag_size=GameField.apriltag_size
+        )
 
-        detector = Detector(**DETECTOR_OPTIONS)
+        referencePoints = []
+        for detection in detections:
+            x, y, z = detection.pose_t[2], -detection.pose_t[0], -detection.pose_t[1]
+            theta, phi = detection.pose_R[0], detection.pose_R[1]
 
-        detect_options = DETECT_OPTIONS.copy()
-        if camera_params:
-            detect_options["camera_params"] = camera_params
-            detect_options["estimate_tag_pose"] = True
+            polar_coordinates = [
+                math.sqrt(x**2 + y**2 + z**2), 
+                math.atan(y/x), 
+                math.atan(z/math.sqrt(x**2 + y**2))
+            ]
 
-        # The detector lies about the return value, it should be a list
-        detections: list[Detection] = detector.detect(image, **detect_options)  # noqa
+            theta, polar_coordinates[1] += camera.rotational_offset[0]
+            phi, polar_coordinates[2] += camera.rotational_offset[1]
 
-        return [cls(detection) for detection in detections]
+            cartisian_coordinates = [
+                math.cos(polar_coordinates[1])*polar_coordinates[0],
+                math.sin(polar_coordinates[1])*polar_coordinates[0],
+                math.sin(polar_coordinates[2])*polar_coordinates[0]
+            ]
+
+            poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
+            poseRelativeToField = GameField().reference_points.get(detection.tag_id)
+
+            referencePoints.append(ReferencePoint(poseRelativeToRobot, poseRelativeToField))
+
+
