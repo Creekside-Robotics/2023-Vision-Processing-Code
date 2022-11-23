@@ -60,6 +60,6 @@ class ReferencePoint:
             poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
             poseRelativeToField = GameField().reference_points.get(detection.tag_id)
 
-            referencePoints.append(ReferencePoint(poseRelativeToRobot, poseRelativeToField))
+            referencePoints.append(cls(poseRelativeToRobot, poseRelativeToField))
         return referencePoints
 
