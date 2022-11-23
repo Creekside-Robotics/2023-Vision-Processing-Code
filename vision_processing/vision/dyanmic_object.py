@@ -1,4 +1,4 @@
-from ..utils import Translation
+from vision_processing import Translation
 
 
 class DynamicObject:
