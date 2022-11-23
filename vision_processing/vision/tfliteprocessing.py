@@ -1,7 +1,6 @@
 import collections
 from time import time
 from dyanmic_object import DynamicObject
-from camera import Camera
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -60,7 +59,7 @@ class DynamicObjectProcessing:
             self.hardware_type = "Coral Edge TPU"
         except:
             print("Failed to create Interpreter with Coral, switching to unoptimized")
-            model_path = "unoptimized.tflite"
+            model_path = "tensorflow_resources/unoptimized.tflite"
             self.interpreter = tf.lite.Interpreter(model_path)
             self.hardware_type = "Unoptimized"
 
