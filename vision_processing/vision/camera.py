@@ -1,7 +1,7 @@
 import math
 
 import cv2
-import numpy as np
+
 from ..utils import Pixel
 
 
@@ -42,7 +42,7 @@ class Camera:
         """
         :return: latest frame from camera
         """
-        return self.input_feed.read()
+        return self.input_feed.grab()
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
