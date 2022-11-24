@@ -35,29 +35,45 @@ class ReferencePoint:
             tag_size=GameField.apriltag_size
         )
 
-        def extractPoseFromDetection(detection):
-            x, y, z = detection.pose_t[2], -detection.pose_t[0], -detection.pose_t[1]
-            theta, phi = detection.pose_R[0], detection.pose_R[1]
-
-            polar_coordinates = [
-                math.sqrt(x**2 + y**2 + z**2), 
-                math.atan(y/x), 
-                math.atan(z/math.sqrt(x**2 + y**2))
-            ]
-
-            theta, polar_coordinates[1] += camera.rotational_offset[0]
-            phi, polar_coordinates[2] += camera.rotational_offset[1]
-
-            cartisian_coordinates = [
-                math.cos(polar_coordinates[1])*polar_coordinates[0] + camera.translational_offset[0],
-                math.sin(polar_coordinates[1])*polar_coordinates[0] + camera.translational_offset[1],
-                math.sin(polar_coordinates[2])*polar_coordinates[0]
-            ]
-
-            poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
-            poseRelativeToField = GameField().reference_points.get(detection.tag_id)
-
-            return cls(poseRelativeToRobot, poseRelativeToField)
-
-        referencePoints = map(extractPoseFromDetection(), detections) 
+        referencePoints = [
+            cls(
+                DetectionPoseInterpretation(camera, detection).getPoseRelativeToRobot(), 
+                DetectionPoseInterpretation(camera, detection).getPoseRelativeToField()
+            ) for detection in detections
+        ]
         return referencePoints
+
+class DetectionPoseInterpretation:
+    def __init__(self, camera: Camera, detection: pyapriltags.Detection):
+        self.camera = camera
+        self.detection = detection
+
+    def getPoseRelativeToRobot(self):
+        # 3d pose realtive to camera
+        x, y, z = self.detection.pose_t[2], -self.detection.pose_t[0], -self.detection.pose_t[1]
+        theta, phi = self.detection.pose_R[0], self.detection.pose_R[1]
+
+        # 3d translation (polar) relative to camera
+        polar_coordinates = [
+            math.sqrt(x**2 + y**2 + z**2), 
+            math.atan(y/x), 
+            math.atan(z/math.sqrt(x**2 + y**2))
+        ]
+
+        # 3d rotation relative to robot
+        theta, polar_coordinates[1] += self.camera.rotational_offset[0]
+        phi, polar_coordinates[2] += self.camera.rotational_offset[1]
+
+        # 3d translation (cartesian) relative to robot
+        cartisian_coordinates = [
+            math.cos(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[0],
+            math.sin(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[1],
+            math.sin(polar_coordinates[2])*polar_coordinates[0]
+        ]
+
+        # 2d pose relative to robot
+        poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
+        return poseRelativeToRobot
+
+    def getPoseRelativeToField(self):
+        return GameField().reference_points.get(self.detection.tag_id)
