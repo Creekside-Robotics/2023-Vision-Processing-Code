@@ -50,8 +50,8 @@ class ReferencePoint:
             phi, polar_coordinates[2] += camera.rotational_offset[1]
 
             cartisian_coordinates = [
-                math.cos(polar_coordinates[1])*polar_coordinates[0],
-                math.sin(polar_coordinates[1])*polar_coordinates[0],
+                math.cos(polar_coordinates[1])*polar_coordinates[0] + camera.translational_offset[0],
+                math.sin(polar_coordinates[1])*polar_coordinates[0] + camera.translational_offset[1],
                 math.sin(polar_coordinates[2])*polar_coordinates[0]
             ]
 

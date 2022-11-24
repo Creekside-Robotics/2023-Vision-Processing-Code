@@ -79,6 +79,8 @@ class Camera:
             + radius * math.sin(perpendicular_connecting_angle),
         )
 
+        return robot_relative_coordinates, radius
+
     def grounded_point_translation(
         self, pixel_coordinates: Pixel
     ) -> tuple[float, float]:
