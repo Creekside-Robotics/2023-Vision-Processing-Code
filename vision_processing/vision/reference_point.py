@@ -35,8 +35,7 @@ class ReferencePoint:
             tag_size=GameField.apriltag_size
         )
 
-        referencePoints = []
-        for detection in detections:
+        def extractPoseFromDetection(detection):
             x, y, z = detection.pose_t[2], -detection.pose_t[0], -detection.pose_t[1]
             theta, phi = detection.pose_R[0], detection.pose_R[1]
 
@@ -58,6 +57,7 @@ class ReferencePoint:
             poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
             poseRelativeToField = GameField().reference_points.get(detection.tag_id)
 
-            referencePoints.append(cls(poseRelativeToRobot, poseRelativeToField))
-        return referencePoints
+            return cls(poseRelativeToRobot, poseRelativeToField)
 
+        referencePoints = map(extractPoseFromDetection(), detections) 
+        return referencePoints
