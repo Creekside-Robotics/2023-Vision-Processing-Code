@@ -1,8 +1,8 @@
 import math
 import pyapriltags
 
-from vision_processing.field.field import GameField
-from .. import Camera
+from field import GameField
+from camera import Camera
 from ..utils import Pose
 import cv2
 
