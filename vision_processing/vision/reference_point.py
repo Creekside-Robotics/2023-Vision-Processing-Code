@@ -50,30 +50,34 @@ class DetectionPoseInterpretation:
 
     def getPoseRelativeToRobot(self):
         # 3d pose realtive to camera
+        x, y, z, theta, phi = self.getDataFromDetection()
+        polar_coordinates = self.cartesianToPolarTranslation(x, y, z)
+        cartesian_coordinates, theta, phi = self.offset3dPoseRelativeToRobot(polar_coordinates, theta, phi)
+        return Pose(cartesian_coordinates[0], cartesian_coordinates[1], theta)
+
+    def getDataFromDetection(self):
         x, y, z = self.detection.pose_t[2], -self.detection.pose_t[0], -self.detection.pose_t[1]
         theta, phi = self.detection.pose_R[0], self.detection.pose_R[1]
-
-        # 3d translation (polar) relative to camera
-        polar_coordinates = [
+        return x, y, z, theta, phi
+    
+    def cartesianToPolarTranslation(self, x: float, y: float, z: float) -> list:
+        return [
             math.sqrt(x**2 + y**2 + z**2), 
             math.atan(y/x), 
             math.atan(z/math.sqrt(x**2 + y**2))
         ]
-
-        # 3d rotation relative to robot
+    
+    def offset3dPoseRelativeToRobot(self, polar_coordinates: list[float, float, float], theta: float, phi: float):
         theta, polar_coordinates[1] += self.camera.rotational_offset[0]
         phi, polar_coordinates[2] += self.camera.rotational_offset[1]
 
-        # 3d translation (cartesian) relative to robot
-        cartisian_coordinates = [
+        cartesian_coordinates = [
             math.cos(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[0],
             math.sin(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[1],
             math.sin(polar_coordinates[2])*polar_coordinates[0]
         ]
 
-        # 2d pose relative to robot
-        poseRelativeToRobot = Pose(cartisian_coordinates[0], cartisian_coordinates[1], theta)
-        return poseRelativeToRobot
+        return cartesian_coordinates, theta, phi
 
     def getPoseRelativeToField(self):
         return GameField().reference_points.get(self.detection.tag_id)
