@@ -14,12 +14,12 @@ This repository maintains our robot's vision and decision making code designed t
 There is some software that you will need to work on the project.
 
 - Install the latest version of python [here](https://www.python.org/)
-- Install tensorflow using the following command `python3 -m pip install tensorflow`
-- Install opencv using the following command `pip install opencv-python`
-- Install numpy using the following command `pip install numpy`
-- Install pynetworktables using the following command `pip install pynetworktables`
-- Install pyapriltags using the following command `pip install pyapriltags`
-- Install robotpy-cscore using the following command `pip install robotpy-cscore`
+- Install tensorflow using the following command `pip3 install tensorflow`
+- Install opencv using the following command `pip3 install opencv-python`
+- Install numpy using the following command `pip3 install numpy`
+- Install pynetworktables using the following command `pip3 install pynetworktables`
+- Install pyapriltags using the following command `pip3 install pyapriltags`
+- Install robotpy-cscore using the following command `pip3 install robotpy-cscore`
 
 ## Documentation for WPILIB and other libraries
 Documentation for of the important libraries used in this project.
