@@ -1,9 +1,7 @@
 import math
-
 import cv2
 import numpy as np
 from ..utils import Pixel
-
 
 class Camera:
     def __init__(

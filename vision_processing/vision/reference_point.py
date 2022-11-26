@@ -1,7 +1,6 @@
 import math
 import pyapriltags
-
-from constants.field import GameField
+from ..constants import GameField
 from camera import Camera
 from ..utils import Pose
 import cv2

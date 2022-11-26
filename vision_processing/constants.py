@@ -1,5 +1,5 @@
 import math
-from vision_processing.utils import Pose
+from .utils import Pose
 
 
 class GameField:

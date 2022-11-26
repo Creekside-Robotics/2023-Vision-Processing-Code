@@ -1,6 +1,5 @@
 from ..utils import Translation
 
-
 class DynamicObject:
     def __init__(
         self,
