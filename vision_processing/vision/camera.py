@@ -2,6 +2,7 @@ import math
 import cv2
 import numpy as np
 from ..utils import Pixel
+from time import time
 
 class Camera:
     def __init__(
@@ -29,6 +30,8 @@ class Camera:
         self.translational_offset: tuple[float, float, float] = translational_offset
         self.rotational_offset: tuple[float, float] = rotational_offset
         self.center: Pixel = Pixel(resolution[0] // 2, resolution[1] // 2)
+        ret, self.frame = self.input_feed.read()
+        self.frame_time = time()
 
         # If there was a vertical line, extending from the center of the image,
         # allowing us to see shape of the camera capture, this would be it's height in pixels.
@@ -36,11 +39,21 @@ class Camera:
             (resolution[0] / 2) ** 2 + (resolution[1] / 2) ** 2
         )
 
+    def update_frame(self):
+        ret, self.frame = self.input_feed.read()
+        self.frame_time = time()
+
     def get_frame(self):
         """
         :return: latest frame from camera
         """
-        return self.input_feed.read()
+        return self.frame
+
+    def get_frame_time(self):
+        """
+        :return: time of latest frame capture
+        """
+        return self.frame_time
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
@@ -55,10 +68,9 @@ class Camera:
         """
         left_robot_relative = self.grounded_point_translation(bbox_left)
         right_robot_relative = self.grounded_point_translation(bbox_right)
-        perpendicular_connecting_slope = -(
-            right_robot_relative[0] - left_robot_relative[0]
-        ) / (right_robot_relative[1] - left_robot_relative[1])
-        perpendicular_connecting_angle = math.atan(perpendicular_connecting_slope)
+        perpendicular_connecting_angle = math.pi/2 + math.atan2(
+            right_robot_relative[1] - left_robot_relative[1], 
+            right_robot_relative[0] - left_robot_relative[0])
 
         bottom_center_robot_relative = (
             (left_robot_relative[0] + right_robot_relative[0]) / 2,
@@ -90,8 +102,8 @@ class Camera:
         y_offset = -(pixel_coordinates.y - self.center.y)
         x_offset = -(pixel_coordinates.x - self.center.x)
 
-        camera_relative_pitch = math.atan(x_offset / self.center_pixel_height)
-        camera_relative_yaw = math.atan(y_offset / self.center_pixel_height)
+        camera_relative_pitch = math.atan2(x_offset, self.center_pixel_height)
+        camera_relative_yaw = math.atan2(y_offset, self.center_pixel_height)
 
         robot_relative_pitch = camera_relative_pitch + self.rotational_offset[0]
 
@@ -103,7 +115,7 @@ class Camera:
         )
         pre_rotated_polar = (
             math.sqrt(pre_rotated_y**2 + pre_rotated_x**2),
-            math.atan(pre_rotated_y / pre_rotated_x),
+            math.atan2(pre_rotated_y, pre_rotated_x),
         )
 
         post_rotated_polar = (
