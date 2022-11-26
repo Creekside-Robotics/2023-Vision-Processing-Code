@@ -104,7 +104,7 @@ class DynamicObjectProcessing:
                             xmax=xmax,
                             ymax=ymax).scale(x_scale, y_scale)
                 ymin, xmin, ymax, xmax = int(bbox.ymin), int(bbox.xmin), int(bbox.ymax), int(bbox.xmax)
-                relative_coordinates, radius = cam.get_dynamic_object_position((xmin, ymax), (xmax, ymin))
+                relative_coordinates, radius = cam.get_dynamic_object_position((xmin, ymax), (xmax, ymax))
                 dynamic_objects.append(DynamicObject(relative_coordinates, radius, self.labels[class_id]))
 
         if self.frames % 100 == 0:
