@@ -20,6 +20,7 @@ There is some software that you will need to work on the project.
 - Install pynetworktables using the following command `pip3 install pynetworktables`
 - Install pyapriltags using the following command `pip3 install pyapriltags`
 - Install robotpy-cscore using the following command `pip3 install robotpy-cscore`
+- Install geometer using the following command `pip3 install geometer`
 
 ## Documentation for WPILIB and other libraries
 Documentation for of the important libraries used in this project.
