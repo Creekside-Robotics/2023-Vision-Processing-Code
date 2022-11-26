@@ -12,9 +12,8 @@ class ReferencePoint:
         poseToRobot.realtive_to_pose(poseToField)
         self.robotPose = poseToRobot
 
-    def estimatatedRobotPose(self):
-        return 
-
+    def estimatatedRobotPose(self) -> Pose:
+        return self.robotPose
     @classmethod
     def from_apriltags(
         cls, camera: Camera
