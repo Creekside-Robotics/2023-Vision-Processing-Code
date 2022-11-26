@@ -8,8 +8,12 @@ import cv2
 
 class ReferencePoint:
     def __init__(self, poseToRobot: Pose, poseToField: Pose):
-        self.poseToRobot = poseToRobot
-        self.poseToField = poseToField
+        poseToRobot.reverse()
+        poseToRobot.realtive_to_pose(poseToField)
+        self.robotPose = poseToRobot
+
+    def estimatatedRobotPose(self):
+        return 
 
     @classmethod
     def from_apriltags(
