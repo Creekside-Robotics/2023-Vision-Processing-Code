@@ -62,7 +62,8 @@ class DetectionPoseInterpretation:
         theta, phi = self.detection.pose_R[0], self.detection.pose_R[1]
         return x, y, z, theta, phi
     
-    def cartesianToPolarTranslation(self, x: float, y: float, z: float) -> list:
+    @staticmethod
+    def cartesianToPolarTranslation(x: float, y: float, z: float) -> list:
         return [
             math.sqrt(x**2 + y**2 + z**2), 
             math.atan(y/x), 
@@ -82,4 +83,4 @@ class DetectionPoseInterpretation:
         return cartesian_coordinates, theta, phi
 
     def getPoseRelativeToField(self):
-        return GameField().reference_points.get(self.detection.tag_id)
+        return GameField.reference_points.get(self.detection.tag_id)
