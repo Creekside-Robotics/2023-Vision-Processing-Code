@@ -22,6 +22,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
+        pip install numpy
+        pip install opencv-python
+        pip install tensorflow
+        pip install scipy
+        pip install pyapriltags
+        pip install pynetworktables
+        pip install robotpy-cscore
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
