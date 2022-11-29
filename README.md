@@ -2,8 +2,8 @@
 This repository maintains our robot's vision and decision making code designed to power autonmous capability on our robot.
 
 ## Goals
- - [ ] Dynamic Object detection with Mobilenet2 
- - [ ] Apriltag detection + Pose estimation
+ - [x] Dynamic Object detection with Mobilenet2 
+ - [x] Apriltag detection + Pose estimation
  - [ ] Full knowledge of surroundings by robot.
  - [ ] Exceutable tasks based on vision input
  - [ ] Advanced decision making capability
