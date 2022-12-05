@@ -1,23 +1,23 @@
 import math
-import pyapriltags
-from ..constants import GameField
-from camera import Camera
-from ..utils import Pose
+
 import cv2
+import pyapriltags
+
+from ..constants import GameField
+from ..utils import Pose, Translation
+from .camera import Camera
 
 
 class ReferencePoint:
-    def __init__(self, poseToRobot: Pose, poseToField: Pose):
-        poseToRobot.reverse()
-        poseToRobot.realtive_to_pose(poseToField)
-        self.robotPose = poseToRobot
+    def __init__(self, pose_to_robot: Pose, pose_to_field: Pose):
+        pose_to_robot = pose_to_robot.reverse().relative_to_pose(pose_to_field)
+        self.robot_pose = pose_to_robot
 
     def estimatatedRobotPose(self) -> Pose:
-        return self.robotPose
+        return self.robot_pose
+
     @classmethod
-    def from_apriltags(
-        cls, camera: Camera
-    ) -> list["ReferencePoint"]:
+    def from_apriltags(cls, camera: Camera) -> list["ReferencePoint"]:
         """
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
@@ -25,62 +25,82 @@ class ReferencePoint:
         detector = pyapriltags.apriltags.Detector(GameField.apriltag_family)
         image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
 
+        # noinspection PyTypeChecker
         detections = detector.detect(
-            image, 
-            estimate_tag_pose=True, 
+            image,
+            estimate_tag_pose=True,
             camera_params=(
-                camera.center_pixel_height, 
-                camera.center_pixel_height, 
-                camera.center.x, 
-                camera.center.y
+                camera.center_pixel_height,
+                camera.center_pixel_height,
+                camera.center.x,
+                camera.center.y,
             ),
-            tag_size=GameField.apriltag_size
+            tag_size=GameField.apriltag_size,
         )
 
-        referencePoints = [
+        reference_points = [
             cls(
-                DetectionPoseInterpretation(camera, detection).getPoseRelativeToRobot(), 
-                DetectionPoseInterpretation(camera, detection).getPoseRelativeToField()
-            ) for detection in detections
+                DetectionPoseInterpretation(camera, detection).get_pose_relative_to_robot(),
+                DetectionPoseInterpretation(camera, detection).get_pose_relative_to_field(),
+            )
+            for detection in detections
         ]
-        return referencePoints
+        return reference_points
+
 
 class DetectionPoseInterpretation:
     def __init__(self, camera: Camera, detection: pyapriltags.Detection):
         self.camera = camera
         self.detection = detection
 
-    def getPoseRelativeToRobot(self):
-        # 3d pose realtive to camera
-        x, y, z, theta, phi = self.getDataFromDetection()
-        polar_coordinates = self.cartesianToPolarTranslation(x, y, z)
-        cartesian_coordinates, theta, phi = self.offset3dPoseRelativeToRobot(polar_coordinates, theta, phi)
-        return Pose(cartesian_coordinates[0], cartesian_coordinates[1], theta)
+    def get_pose_relative_to_robot(self) -> Pose:
+        # 3d pose relative to camera
+        x, y, z, theta, phi = self.get_data_from_detection()
+        polar_coordinates = self.cartesian_to_polar_translation(x, y, z)
+        cartesian_coordinates, theta, phi = self.offset_pose_relative_to_robot(
+            polar_coordinates, theta, phi
+        )
+        return Pose(
+            Translation(cartesian_coordinates[0], cartesian_coordinates[1]), theta
+        )
 
-    def getDataFromDetection(self):
-        x, y, z = self.detection.pose_t[2], -self.detection.pose_t[0], -self.detection.pose_t[1]
+    def get_data_from_detection(self) -> tuple[float, float, float, float, float]:
+        x, y, z = (
+            self.detection.pose_t[2],
+            -self.detection.pose_t[0],
+            -self.detection.pose_t[1],
+        )
         theta, phi = self.detection.pose_R[0], self.detection.pose_R[1]
         return x, y, z, theta, phi
-    
-    @staticmethod
-    def cartesianToPolarTranslation(x: float, y: float, z: float) -> list:
-        return [
-            math.sqrt(x**2 + y**2 + z**2), 
-            math.atan(y/x), 
-            math.atan(z/math.sqrt(x**2 + y**2))
-        ]
-    
-    def offset3dPoseRelativeToRobot(self, polar_coordinates: list[float, float, float], theta: float, phi: float):
-        theta, polar_coordinates[1] += self.camera.rotational_offset[0]
-        phi, polar_coordinates[2] += self.camera.rotational_offset[1]
 
-        cartesian_coordinates = [
-            math.cos(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[0],
-            math.sin(polar_coordinates[1])*polar_coordinates[0] + self.camera.translational_offset[1],
-            math.sin(polar_coordinates[2])*polar_coordinates[0]
-        ]
+    @staticmethod
+    def cartesian_to_polar_translation(
+        x: float, y: float, z: float
+    ) -> tuple[float, float, float]:
+        return (
+            math.sqrt(x**2 + y**2 + z**2),
+            math.atan(y / x),
+            math.atan(z / math.sqrt(x**2 + y**2)),
+        )
+
+    def offset_pose_relative_to_robot(
+        self, polar_coordinates: tuple[float, float, float], theta: float, phi: float
+    ) -> tuple[tuple[float, float, float], float, float]:
+        theta += self.camera.rotational_offset[0]
+        polar_coordinates[1] += self.camera.rotational_offset[0]
+
+        phi += self.camera.rotational_offset[1]
+        polar_coordinates[2] += self.camera.rotational_offset[1]
+
+        cartesian_coordinates = (
+            math.cos(polar_coordinates[1]) * polar_coordinates[0]
+            + self.camera.translational_offset[0],
+            math.sin(polar_coordinates[1]) * polar_coordinates[0]
+            + self.camera.translational_offset[1],
+            math.sin(polar_coordinates[2]) * polar_coordinates[0],
+        )
 
         return cartesian_coordinates, theta, phi
 
-    def getPoseRelativeToField(self):
+    def get_pose_relative_to_field(self) -> Pose | None:
         return GameField.reference_points.get(self.detection.tag_id)

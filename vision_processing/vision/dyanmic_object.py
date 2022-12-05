@@ -1,11 +1,12 @@
 from ..utils import Translation
 
+
 class DynamicObject:
     def __init__(
         self,
         relative_coordinates: Translation,
-        radius: float, 
-        object_name, 
+        radius: float,
+        object_name,
         velocity: tuple[float, float] = (0, 0),
         absolute_coordinates: Translation = (0, 0),
         probability: float = 1,

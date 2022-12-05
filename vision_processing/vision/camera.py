@@ -1,8 +1,11 @@
 import math
+from time import time
+
 import cv2
 import numpy as np
-from ..utils import Pixel
-from time import time
+
+from ..utils import Pixel, Translation
+
 
 class Camera:
     def __init__(
@@ -30,7 +33,7 @@ class Camera:
         self.translational_offset: tuple[float, float, float] = translational_offset
         self.rotational_offset: tuple[float, float] = rotational_offset
         self.center: Pixel = Pixel(resolution[0] // 2, resolution[1] // 2)
-        ret, self.frame = self.input_feed.read()
+        self.frame: np.ndarray = self.input_feed.read()[1]
         self.frame_time = time()
 
         # If there was a vertical line, extending from the center of the image,
@@ -39,17 +42,17 @@ class Camera:
             (resolution[0] / 2) ** 2 + (resolution[1] / 2) ** 2
         )
 
-    def update_frame(self):
-        ret, self.frame = self.input_feed.read()
+    def update_frame(self) -> None:
+        self.frame = self.input_feed.read()[1]
         self.frame_time = time()
 
-    def get_frame(self):
+    def get_frame(self) -> np.ndarray:
         """
         :return: latest frame from camera
         """
         return self.frame
 
-    def get_frame_time(self):
+    def get_frame_time(self) -> float:
         """
         :return: time of latest frame capture
         """
@@ -57,20 +60,19 @@ class Camera:
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
-    ):
+    ) -> tuple[Translation[float, float], float]:
         """
-        Method for getting a ObjectSnapshot from a two bounding box coordinates
         :param bbox_left: tuple of length two, bottom left pixel coordinate of bounding box
         :type bbox_left: Pixel
         :param bbox_right: tuple of length two, bottom right pixel coordinate of bounding box
         :type bbox_right: Pixel
-        :return: ObjectSnapshot object
         """
         left_robot_relative = self.grounded_point_translation(bbox_left)
         right_robot_relative = self.grounded_point_translation(bbox_right)
-        perpendicular_connecting_angle = math.pi/2 + math.atan2(
-            right_robot_relative[1] - left_robot_relative[1], 
-            right_robot_relative[0] - left_robot_relative[0])
+        perpendicular_connecting_angle = math.pi / 2 + math.atan2(
+            right_robot_relative[1] - left_robot_relative[1],
+            right_robot_relative[0] - left_robot_relative[0],
+        )
 
         bottom_center_robot_relative = (
             (left_robot_relative[0] + right_robot_relative[0]) / 2,
@@ -82,7 +84,7 @@ class Camera:
             + (left_robot_relative[1] - bottom_center_robot_relative[0]) ** 2
         )
 
-        robot_relative_coordinates = (
+        robot_relative_coordinates = Translation(
             bottom_center_robot_relative[0]
             + radius * math.cos(perpendicular_connecting_angle),
             bottom_center_robot_relative[1]

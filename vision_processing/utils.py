@@ -1,54 +1,100 @@
 import math
 from typing import NamedTuple
+
 from scipy import spatial
 import statistics
 
 class Pixel(NamedTuple):
     """A pixel coordinate on a camera"""
+
     x: int
     y: int
-    
+
+
 class Translation(NamedTuple):
-    """The position of something on the field"""
+    """The position of something on the field, or the difference between two points"""
+
     x: float
     y: float
-    """Whether the coordinates are relative to the field or the camera"""
 
-    def relative_to_pose(self, pose):
+    def relative_to_pose(self, pose: "Pose") -> "Translation":
         polar_coordiates = (
-            spatial.distance.seuclidean([0, 0], [self.x, self.y]),
-            math.atan2(self.y, self.x)
+            spatial.distance.euclidean([0, 0], [self.x, self.y]),
+            math.atan2(self.y, self.x) + pose.rot,
         )
 
-        polar_coordiates[1] += pose.rot
+        x = math.cos(polar_coordiates[1]) * polar_coordiates[0] + pose.x
+        y = math.sin(polar_coordiates[1]) * polar_coordiates[0] + pose.y
+        return Translation(x, y)
 
-        self.x = math.cos(polar_coordiates[1]) * polar_coordiates[0] + pose.x,
-        self.y = math.sin(polar_coordiates[1]) * polar_coordiates[0] + pose.y
+    def __add__(self, other: "Translation") -> "Translation":  # vector addition
+        if not isinstance(other, Translation):
+            return NotImplemented
+
+        x = self.x + other.x
+        y = self.y + other.y
+        return Translation(x, y)
+
+    def __mul__(self, other: float) -> "Translation":  # scaling
+        return Translation(self.x * other, self.y * other)
+
+    @staticmethod
+    def add(first, second: "Translation") -> "Translation":
+        """Adds the components of the two translations together"""
+        return first + second
+
+    @staticmethod
+    def scale(translation, scalar: float) -> "Translation":
+        """Scales the translation"""
+        return translation * scalar
+
 
 class Pose:
     def __init__(self, translation: Translation, rot: float) -> None:
         self.translation = translation
         self.rot = rot
-    
-    def realtive_to_pose(self, pose):
+
+    @property
+    def x(self) -> float:
+        """The x value of the pose's translation"""
+        return self.translation.x
+
+    @property
+    def y(self) -> float:
+        """The y value of the pose's translation"""
+        return self.translation.y
+
+    def relative_to_pose(self, pose: "Pose") -> "Pose":
         """
-        Adds pose to current
+        Adds two poses together and returns it
+
+        :param pose: The other pose to add
+        :type pose: Pose
+        :returns: The new pose
+        :rtype: Pose
         """
-        self.translation.relative_to_pose(pose)
-        self.rot += pose.rot
-    
-    def reverse(self):
+        translation = self.translation.relative_to_pose(pose)
+        rot = self.rot + pose.rot
+        return Pose(translation, rot)
+
+    def reverse(self) -> "Pose":
         """
-        Inverts pose
+        Creates a new pose with reversed orientation
+
+        :returns: The new pose
+        :rtype: Pose
         """
         polar_coordiates = (
-            spatial.distance.seuclidean([0, 0], [self.x, self.y]),
-            math.atan2(self.y, self.x) + math.pi - self.rot
+            spatial.distance.euclidean([0, 0], [self.x, self.y]),
+            math.atan2(self.y, self.x) + math.pi - self.rot,
         )
 
-        self.translation.x = polar_coordiates[0] * math.cos(polar_coordiates[1])
-        self.translation.y = polar_coordiates[0] * math.sin(polar_coordiates[1])
-        self.rot = -self.rot
+        x = polar_coordiates[0] * math.cos(polar_coordiates[1])
+        y = polar_coordiates[0] * math.sin(polar_coordiates[1])
+        rot = -self.rot
+
+        return Pose(Translation(x, y), rot)
+
 
     @staticmethod
     def average_angles(angles: list[float]) -> float:
