@@ -27,7 +27,7 @@ Documentation for of the important libraries used in this project.
  - [Tensorflow](https://www.tensorflow.org/guide) - Framework used to create models for vision processing and decision making
  - [Tensorflow Lite](https://www.tensorflow.org/lite/guide) - Scaled down version of tensorflow which we will be using on our hardware
  - [NetworkTables](https://robotpy.readthedocs.io/projects/pynetworktables/en/stable/api.html) - Library used to communicate with Roborio
- - [AprilTags](https://www.youtube.com/watch?v=TG9KAa2EGzQ&authuser=0) - This video does a good job explaining what apriltags are and how to use them. Ignore information on photonvision, we will not be using that software.
+ - [AprilTags](https://april.eecs.umich.edu/software/apriltag) - This is the main page for the apriltag robotics labratory. [Here](https://www.youtube.com/watch?v=TG9KAa2EGzQ&authuser=0) is a video that does a good job explaining what apriltags are and how to use them. Ignore information on photonvision, we will not be using that software.
  
  ## Branch Protection Rules
  `main` is the only protected branch. All changes that effect robot functionality must be merged to `main` via pull request and have been succesfully tested.
