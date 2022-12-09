@@ -18,4 +18,6 @@ class GameField:
     apriltag_size = 0.1524
     apriltag_family = "tag16h5"
 
+    prediction_decay = 0.3
+    
     robot_radius = 0.5

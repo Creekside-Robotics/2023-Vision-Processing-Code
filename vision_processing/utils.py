@@ -1,8 +1,9 @@
 import math
+import statistics
 from typing import NamedTuple
 
 from scipy import spatial
-import statistics
+
 
 class Pixel(NamedTuple):
     """A pixel coordinate on a camera"""
@@ -27,6 +28,9 @@ class Translation(NamedTuple):
         y = math.sin(polar_coordiates[1]) * polar_coordiates[0] + pose.y
         return Translation(x, y)
 
+    def __neg__(self) -> "Translation":
+        return Translation(-self.x, -self.y)
+
     def __add__(self, other: "Translation") -> "Translation":  # vector addition
         if not isinstance(other, Translation):
             return NotImplemented
@@ -35,8 +39,14 @@ class Translation(NamedTuple):
         y = self.y + other.y
         return Translation(x, y)
 
+    def __sub__(self, other: "Translation") -> "Translation":
+        return -self + other
+
     def __mul__(self, other: float) -> "Translation":  # scaling
         return Translation(self.x * other, self.y * other)
+
+    def __truediv__(self, other: float) -> "Translation": # also scaling
+        return Translation(self.x / other, self.y / other)
 
     @staticmethod
     def add(first, second: "Translation") -> "Translation":
@@ -47,6 +57,11 @@ class Translation(NamedTuple):
     def scale(translation, scalar: float) -> "Translation":
         """Scales the translation"""
         return translation * scalar
+
+    def reverse(self) -> "Translation":
+        """Creates a new translation going in the opposite direction"""
+        return -self
+
 
 
 class Pose:
@@ -95,7 +110,6 @@ class Pose:
 
         return Pose(Translation(x, y), rot)
 
-
     @staticmethod
     def average_angles(angles: list[float]) -> float:
         """
@@ -117,7 +131,22 @@ class Pose:
         return cls(
             Translation(
                 statistics.mean([pose.translation.x for pose in poses]),
-                statistics.mean([pose.translation.y for pose in poses])
+                statistics.mean([pose.translation.y for pose in poses]),
             ),
-            cls.average_angles([pose.rot for pose in poses])
+            cls.average_angles([pose.rot for pose in poses]),
         )
+
+
+class _Counter:
+    """A class that gives ever-increasing values, starting from any chosen number (defaults to 0)"""
+
+    def __init__(self, start=0):
+        self._val = start - 1  # decrease by one to have it start at the right value
+
+    def next(self):
+        """Increment the counter by one and return the next number"""
+        self._val += 1
+        return self._val
+
+
+dynamic_object_counter = _Counter(start=2)
