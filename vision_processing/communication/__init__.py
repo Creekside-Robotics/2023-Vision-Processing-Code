@@ -1,1 +1,1 @@
-from NetworkCommunication import *
+from .network_communications import *
