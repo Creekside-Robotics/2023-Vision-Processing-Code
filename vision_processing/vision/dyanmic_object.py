@@ -1,7 +1,7 @@
 import time
 
 from ..constants import GameField
-from ..utils import Translation, dynamic_object_counter
+from ..utils import Translation, dynamic_object_counter, Pose
 
 
 class DynamicObject:
@@ -10,9 +10,10 @@ class DynamicObject:
         relative_coordinates: Translation,
         radius: float,
         object_name,
+        timestamp: float,
         velocity: tuple[float, float] = (0, 0),
         absolute_coordinates: Translation = Translation(0, 0),
-        probability: float = 1,
+        probability: float = 1
     ):
         """
         Class to represent a moving object on a field
@@ -36,7 +37,7 @@ class DynamicObject:
         self.probability = probability
 
         self.id = dynamic_object_counter.next()
-        self.timestamp = time.time()
+        self.timestamp = timestamp
 
     def predict(self, *, delay: float | None = None, when: float | None = None) -> Translation:
         """
@@ -57,7 +58,6 @@ class DynamicObject:
 
         if delay is None and when is None:
             raise ValueError("You must pass either `delay` or `when`!")
-
 
         _step = delay or (when - self.timestamp)
 
@@ -97,3 +97,6 @@ class DynamicObject:
 
             self.absolute_coordinates = prediction
             self.probability *= probability_decay
+
+    def add_absolute_coordinates(self, robot_pose: Pose):
+        self.absolute_coordinates = self.relative_coordinates.relative_to_pose(robot_pose)

@@ -89,10 +89,8 @@ class DynamicObjectProcessing:
     def get_dynamic_objects(self, cam: "Camera"):
         start = time()
         # Acquire frame and resize to expected shape [1xHxWx3]
-        ret, frame_cv2 = cam.get_frame()
-        if not ret:
-            print("Image failed")
-            return
+        frame_cv2 = cam.get_frame()
+        frame_time = cam.get_frame_time()
 
         # input
         scale = self.set_input(frame_cv2)
@@ -130,6 +128,7 @@ class DynamicObjectProcessing:
                         Translation(*relative_coordinates),
                         radius,
                         self.labels[class_id],
+                        frame_time
                     )
                 )
 

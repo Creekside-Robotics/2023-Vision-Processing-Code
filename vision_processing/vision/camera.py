@@ -14,7 +14,7 @@ class Camera:
         rotational_offset: tuple[float, float],
         resolution: tuple[int, int],
         fov: float,
-        id,
+        port_id,
     ):
         """
         Creates a camera object to be used for various functions
@@ -26,10 +26,10 @@ class Camera:
         :type resolution: tuple[int, int]
         :param fov: diagonal fov, radians
         :type fov: float
-        :param id: camera id - for testing put the path to a video
-        :type id: Any
+        :param port_id: camera id - for testing put the path to a video
+        :type port_id: Any
         """
-        self.input_feed: cv2.VideoCapture = cv2.VideoCapture(id)
+        self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
         self.translational_offset: tuple[float, float, float] = translational_offset
         self.rotational_offset: tuple[float, float] = rotational_offset
         self.center: Pixel = Pixel(resolution[0] // 2, resolution[1] // 2)
