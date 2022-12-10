@@ -57,7 +57,7 @@ class GameField:
         0,
         absolute_coordinates=Translation(5, 0.5)
     )
-    endgame_square.id = 3
+    scout_position_one.id = 2
 
     special_objects = [
         home_location,

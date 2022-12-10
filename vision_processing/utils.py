@@ -19,13 +19,13 @@ class Translation(NamedTuple):
     y: float
 
     def relative_to_pose(self, pose: "Pose") -> "Translation":
-        polar_coordiates = (
+        polar_coordinates = (
             spatial.distance.euclidean([0, 0], [self.x, self.y]),
             math.atan2(self.y, self.x) + pose.rot,
         )
 
-        x = math.cos(polar_coordiates[1]) * polar_coordiates[0] + pose.x
-        y = math.sin(polar_coordiates[1]) * polar_coordiates[0] + pose.y
+        x = math.cos(polar_coordinates[1]) * polar_coordinates[0] + pose.x
+        y = math.sin(polar_coordinates[1]) * polar_coordinates[0] + pose.y
         return Translation(x, y)
 
     def __neg__(self) -> "Translation":
@@ -64,6 +64,15 @@ class Translation(NamedTuple):
 
     def __abs__(self):
         return math.sqrt(self.x**2 + self.y**2)
+
+    def push_away(self, other_translation: "Translation", distance):
+        vector_difference = other_translation - self
+        vector_distance = abs(vector_difference)
+        if vector_distance > distance:
+            return other_translation, False
+        unit_vector = vector_difference / vector_distance
+        final_translation = self + unit_vector * distance
+        return final_translation, True
 
 
 class Pose:
@@ -144,6 +153,7 @@ class Box:
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
         self.center = (self.lower_limit + self.upper_limit) / 2
+        self.radius = abs(self.lower_limit - self.center)
 
     def is_inside(self, point: Translation, radius: float = 0) -> bool:
         if self.lower_limit.x + radius <= point.x <= self.upper_limit.x - radius \
@@ -151,6 +161,32 @@ class Box:
             return True
         else:
             return False
+
+    def push_inside(self, point: Translation, distance: float):
+        change = False
+        x = point.x
+        y = point.y
+
+        if point.x > self.upper_limit.x - distance:
+            x = self.upper_limit.x - distance
+            change = True
+
+        if point.y > self.upper_limit.y - distance:
+            y = self.upper_limit.y - distance
+            change = True
+
+        if point.x < self.lower_limit.x + distance:
+            x = self.lower_limit.x + distance
+            change = True
+
+        if point.y < self.lower_limit.x + distance:
+            y = self.lower_limit.x + distance
+            change = True
+
+        return Translation(x, y), change
+
+    def push_outside(self, point: Translation, distance: float):
+        return self.center.push_away(point, distance)
 
 
 class _Counter:
@@ -165,4 +201,4 @@ class _Counter:
         return self._val
 
 
-dynamic_object_counter = _Counter(start=2)
+dynamic_object_counter = _Counter(start=3)
