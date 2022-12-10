@@ -1,12 +1,20 @@
 import math
 
-from .utils import Pose, Translation
+from .utils import Pose, Translation, Box
 
 
 class GameField:
     # Game field class storing game field relative data
-    field_boundary = (0, 0, 10, 7)
-    dead_zones = [(4.5, 3, 5.5, 4)]
+    field_boundary = Box(
+        Translation(0, 0),
+        Translation(10, 7)
+    )
+    dead_zones = [
+        Box(
+            Translation(4.5, 3),
+            Translation(5.5, 4)
+        )
+    ]
 
     reference_points = {
         1: Pose(Translation(4.5, 3.5), 0),

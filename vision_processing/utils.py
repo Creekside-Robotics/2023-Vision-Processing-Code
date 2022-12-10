@@ -45,7 +45,7 @@ class Translation(NamedTuple):
     def __mul__(self, other: float) -> "Translation":  # scaling
         return Translation(self.x * other, self.y * other)
 
-    def __truediv__(self, other: float) -> "Translation": # also scaling
+    def __truediv__(self, other: float) -> "Translation":  # also scaling
         return Translation(self.x / other, self.y / other)
 
     @staticmethod
@@ -62,6 +62,8 @@ class Translation(NamedTuple):
         """Creates a new translation going in the opposite direction"""
         return -self
 
+    def __abs__(self):
+        return math.sqrt(self.x**2 + self.y**2)
 
 
 class Pose:
@@ -99,13 +101,13 @@ class Pose:
         :returns: The new pose
         :rtype: Pose
         """
-        polar_coordiates = (
+        polar_coordinates = (
             spatial.distance.euclidean([0, 0], [self.x, self.y]),
             math.atan2(self.y, self.x) + math.pi - self.rot,
         )
 
-        x = polar_coordiates[0] * math.cos(polar_coordiates[1])
-        y = polar_coordiates[0] * math.sin(polar_coordiates[1])
+        x = polar_coordinates[0] * math.cos(polar_coordinates[1])
+        y = polar_coordinates[0] * math.sin(polar_coordinates[1])
         rot = -self.rot
 
         return Pose(Translation(x, y), rot)
@@ -135,6 +137,20 @@ class Pose:
             ),
             cls.average_angles([pose.rot for pose in poses]),
         )
+
+
+class Box:
+    def __init__(self, lower_limit: Translation, upper_limit: Translation):
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
+        self.center = (self.lower_limit + self.upper_limit) / 2
+
+    def is_inside(self, point: Translation, radius: float = 0) -> bool:
+        if self.lower_limit.x + radius <= point.x <= self.upper_limit.x - radius \
+                and self.lower_limit.y + radius <= point.y <= self.upper_limit.y - radius:
+            return True
+        else:
+            return False
 
 
 class _Counter:
