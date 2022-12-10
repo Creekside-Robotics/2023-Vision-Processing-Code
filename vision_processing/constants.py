@@ -1,5 +1,6 @@
 import math
 
+from . import DynamicObject
 from .utils import Pose, Translation, Box
 
 
@@ -27,5 +28,40 @@ class GameField:
     apriltag_family = "tag16h5"
 
     prediction_decay = 0.3
-    
     robot_radius = 0.5
+    robot_translational_speed = 1
+    robot_angular_speed = math.pi
+
+    home_location = DynamicObject(
+        Translation(1.5, 5.5),
+        1.5,
+        "Home Square",
+        0,
+        absolute_coordinates=Translation(1.5, 5.5)
+    )
+    home_location.id = 0
+
+    endgame_square = DynamicObject(
+        Translation(1, 1),
+        0,
+        "Endgame Square",
+        0,
+        absolute_coordinates=Translation(0, 0)
+    )
+    endgame_square.id = 1
+
+    scout_position_one = DynamicObject(
+        Translation(5, 0.5),
+        0,
+        "Endgame Square",
+        0,
+        absolute_coordinates=Translation(5, 0.5)
+    )
+    endgame_square.id = 3
+
+    special_objects = [
+        home_location,
+        endgame_square,
+        scout_position_one
+    ]
+

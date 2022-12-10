@@ -44,7 +44,7 @@ class DynamicField:
             update_index = -1
             for i in range(0, len(new_objects)):
                 distance = abs(new_objects[i].absolute_coordinates - obj.predict(when=new_objects[i].timestamp))
-                if distance < min_dist:
+                if distance < min_dist and obj.object_name == new_objects[i].object_name:
                     min_dist = distance
                     update_index = i
             if update_index == -1:
@@ -54,6 +54,7 @@ class DynamicField:
                 new_objects.pop(update_index)
 
         self.objects.extend(new_objects)
+        self.objects = sorted(self.objects, key=lambda obj: obj.probability)
         self.clean_objects()
 
     def clean_objects(self):
