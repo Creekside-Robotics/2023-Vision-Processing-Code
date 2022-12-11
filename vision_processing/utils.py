@@ -7,7 +7,6 @@ from scipy import spatial
 
 class Pixel(NamedTuple):
     """A pixel coordinate on a camera"""
-
     x: int
     y: int
 
@@ -61,6 +60,19 @@ class Translation(NamedTuple):
     def reverse(self) -> "Translation":
         """Creates a new translation going in the opposite direction"""
         return -self
+
+    @staticmethod
+    def dot_product(translation: "Translation", other: "Translation"):
+        return translation.x * other.x + translation.y * other.y
+
+    @staticmethod
+    def angle_between(translation: "Translation", other: "Translation"):
+        dot_prod = Translation.dot_product(translation, other)
+        cos_of_angle = dot_prod/(abs(translation) * abs(other))
+        return math.acos(cos_of_angle)
+
+    def angle_of(self):
+        return math.atan2(self.y, self.x)
 
     def __abs__(self):
         return math.sqrt(self.x**2 + self.y**2)
