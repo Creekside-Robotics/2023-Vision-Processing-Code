@@ -1,5 +1,3 @@
-import time
-
 from ..constants import GameField
 from ..utils import Translation, dynamic_object_counter, Pose
 
@@ -98,5 +96,10 @@ class DynamicObject:
             self.absolute_coordinates = prediction
             self.probability *= probability_decay
 
-    def add_absolute_coordinates(self, robot_pose: Pose):
+    def add_absolute_coordinates(self, robot_pose: Pose) -> None:
+        """
+        Adds the absolute corrdinates to DynamicObject
+        @param robot_pose: The current pose of the robot
+        @return: null
+        """
         self.absolute_coordinates = self.relative_coordinates.relative_to_pose(robot_pose)

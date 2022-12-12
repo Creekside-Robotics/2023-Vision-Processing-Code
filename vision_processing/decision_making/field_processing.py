@@ -13,9 +13,17 @@ class FieldProcessing:
     tasks: list[GameTask] = []
 
     def __init__(self, complete_field: DynamicField):
+        """
+        Creates a field processing objects, that processes the field to get an output.
+        @param complete_field: Dynamic field object to process
+        """
         self.game_field = complete_field
 
-    def update_tasks(self):
+    def update_tasks(self) -> None:
+        """
+        Updates as list of possible tasks stored inside the processing object
+        @return: null
+        """
         self.tasks = []
         if self.last_task is not None:
             self.tasks.append(self.last_task)
@@ -25,13 +33,13 @@ class FieldProcessing:
         for obj in GameField.special_objects:
             self.tasks.append(GameTask(obj, self.game_field.robot))
 
-    def weight_history(self, task: GameTask):
+    def weight_history(self, task: GameTask) -> float:
         if self.previous_successful_task_type == task.dynamic_object.object_name:
             return 0
         else:
             return 1
 
-    def weight_object_proximity(self, task: GameTask):
+    def weight_object_proximity(self, task: GameTask) -> float:
         weight = 1
         for obj in self.game_field.objects:
             if obj.object_name == "Red Robot" or "Blue Robot":
@@ -40,10 +48,10 @@ class FieldProcessing:
                 weight *= 1.05 ** (15 - abs(obj.absolute_coordinates - task.dynamic_object.absolute_coordinates))
         return weight
 
-    def weight_travel_time(self, task: GameTask):
+    def weight_travel_time(self, task: GameTask) -> float:
         return 0.98 ** task.estimate_time()
 
-    def weight_game_time(self, task: GameTask):
+    def weight_game_time(self, task: GameTask) -> float:
         if task == self.game_field.game_time < 20 and task.dynamic_object.object_name == "Endgame Square":
             return 1
         elif task == self.game_field.game_time > 20 and task.dynamic_object.object_name == "Endgame Square":
@@ -51,14 +59,14 @@ class FieldProcessing:
         else:
             return 0.5
 
-    def weight_probability(self, task: GameTask):
+    def weight_probability(self, task: GameTask) -> float:
         return task.dynamic_object.probability
 
-    def weight_velocity(self, task: GameTask):
+    def weight_velocity(self, task: GameTask) -> float:
         velocity = math.sqrt(task.dynamic_object.velocity[0] ** 2 + task.dynamic_object.velocity[1] ** 2)
         return 0.95 ** velocity
 
-    def weight_previous_id(self, task: GameTask):
+    def weight_previous_id(self, task: GameTask) -> float:
         if self.last_task is None:
             return 1
 
@@ -68,6 +76,10 @@ class FieldProcessing:
         return 0.5
 
     def rank_tasks(self):
+        """
+        Ranks of the tasks using weighting algorithm
+        @return: None
+        """
         for task in self.tasks:
             task.rating = (
                     self.weight_history(task) *
@@ -80,7 +92,11 @@ class FieldProcessing:
             )
         self.tasks = sorted(self.tasks, key=lambda x: x.rating)
 
-    def generate_task(self):
+    def generate_task(self) -> None:
+        """
+        Generates the highest ranking task
+        @return:None
+        """
         self.last_task = self.tasks[0]
         self.last_task.clean_key_points()
         self.generate_key_points(self.last_task)
@@ -89,12 +105,22 @@ class FieldProcessing:
         )
 
     def get_output(self):
+        """
+        Gets the output for the selected task
+        @return: tuple (xVel, yVel, rotVel) - all floats
+        """
         output = self.last_task.get_output(speed=GameField.robot_translational_speed)
         if self.last_task.is_done():
             self.last_task = None
         return output
 
     def generate_key_points(self, task: GameTask, resolution: float = 0.2):
+        """
+        Generates the key points within spline to complete a task
+        @param task: Task passes that will be modified with new key points
+        @param resolution: Distance between sample points used to create key points
+        @return: None
+        """
         total_dist = abs(task.key_points[-1] - task.key_points[-2])
         obstructions = self.get_obstructing_objects()
 
@@ -145,13 +171,23 @@ class FieldProcessing:
         dist = np.sqrt((x[:-1] - x[1:]) ** 2 + (y[:-1] - y[1:]) ** 2)
         task.key_dist = np.concatenate(([0], dist.cumsum()))
 
-    def within_object(self, point: Translation, obj: DynamicObject | Box):
+    def within_object(self, point: Translation, obj: DynamicObject | Box) -> bool:
+        """
+        Returns whether the robot will be interfering with an object at a given point.
+        @param point: Translational coordinates of the robot
+        @param obj: Object that would be colliding
+        @return: Boolean, whether there is interference
+        """
         if type(obj) == DynamicObject:
             return abs(point - obj.absolute_coordinates) < (obj.radius + self.game_field.robot.size)
         if type(obj) == Box:
             return obj.is_inside(point, -self.game_field.robot.size)
 
-    def get_obstructing_objects(self):
+    def get_obstructing_objects(self) -> list[DynamicObject | Box]:
+        """
+        gets objects that could be obstructing
+        @return: obstructing objects
+        """
         obstructing_objects: list[Box | DynamicObject] = []
         obstructing_objects.extend(GameField.dead_zones)
         for item in self.game_field.objects:
