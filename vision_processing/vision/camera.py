@@ -1,9 +1,7 @@
 import math
 from time import time
 import cv2
-
 import numpy as np
-
 from ..utils import Pixel, Translation
 
 
@@ -12,8 +10,7 @@ class Camera:
         self,
         translational_offset: tuple[float, float, float],
         rotational_offset: tuple[float, float],
-        resolution: tuple[int, int],
-        fov: float,
+        focal_length: float,
         port_id,
     ):
         """
@@ -22,25 +19,19 @@ class Camera:
         :type translational_offset: tuple[int, int, int]
         :param rotational_offset: tuple of length two - (pitch, yaw) radians
         :type rotational_offset: tuple[float, float]
-        :param resolution: tuple of length two - (x res, y res)
-        :type resolution: tuple[int, int]
-        :param fov: diagonal fov, radians
-        :type fov: float
         :param port_id: camera id - for testing put the path to a video
         :type port_id: Any
         """
         self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
         self.translational_offset: tuple[float, float, float] = translational_offset
         self.rotational_offset: tuple[float, float] = rotational_offset
-        self.center: Pixel = Pixel(resolution[0] // 2, resolution[1] // 2)
         self.frame: np.ndarray = self.input_feed.read()[1]
+        self.center: Pixel = Pixel(self.frame.shape[0], self.frame.shape[1])
         self.frame_time = time()
 
         # If there was a vertical line, extending from the center of the image,
-        # allowing us to see shape of the camera capture, this would be it's height in pixels.
-        self.center_pixel_height: float = (1 / math.atan(fov / 2)) * math.sqrt(
-            (resolution[0] / 2) ** 2 + (resolution[1] / 2) ** 2
-        )
+        # allowing us to see shape of the camera capture, this would be its height in pixels.
+        self.center_pixel_height: float = focal_length
 
     def update_frame(self) -> None:
         self.frame = self.input_feed.read()[1]

@@ -194,3 +194,8 @@ class FieldProcessing:
             if (item.object_name == "Red Robot" or "Blue Robot") and item.probability > 0.5:
                 obstructing_objects.append(item)
         return obstructing_objects
+
+    def process_field(self):
+        self.update_tasks()
+        self.rank_tasks()
+        self.generate_task()

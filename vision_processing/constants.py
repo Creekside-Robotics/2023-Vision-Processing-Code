@@ -1,6 +1,6 @@
 import math
 
-from . import DynamicObject
+from . import DynamicObject, Camera
 from .utils import Pose, Translation, Box
 
 
@@ -71,3 +71,17 @@ class GameField:
         "Home Square": 0
     }
 
+    cameras = [
+        Camera(
+            (0.106, 0, 0.6606),
+            (-math.pi/6, 0),
+            636,
+            0
+        ),
+        Camera(
+            (-0.106, 0, 0.6606),
+            (-math.pi / 6, math.pi),
+            734,
+            1
+        )
+    ]

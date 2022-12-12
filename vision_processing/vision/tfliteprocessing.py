@@ -86,7 +86,7 @@ class DynamicObjectProcessing:
         self.labels = parser.get_labels()
         self.frames = 0
 
-    def get_dynamic_objects(self, cam: "Camera"):
+    def get_dynamic_objects(self, cam: "Camera") -> list[DynamicObject]:
         start = time()
         # Acquire frame and resize to expected shape [1xHxWx3]
         frame_cv2 = cam.get_frame()
@@ -135,6 +135,7 @@ class DynamicObjectProcessing:
         if self.frames % 100 == 0:
             print("Completed", self.frames, "frames. FPS:", (1 / (time() - start)))
         self.frames += 1
+        return dynamic_objects
 
     def input_size(self) -> tuple[int, int]:
         """Returns input image size as (width, height) tuple."""
