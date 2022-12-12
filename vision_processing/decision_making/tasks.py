@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from scipy import interpolate
 
@@ -38,7 +40,7 @@ class GameTask:
             self.key_dist.insert(-2, self.spline_dist[self.get_closest_point(point=self.robot.pose.translation)])
             self.key_points.insert(-2, self.spline_points[self.get_closest_point(point=self.robot.pose.translation)])
 
-    def generate_spline(self, foresight: float = 1):
+    def generate_spline(self, foresight: float = 1, final_rot: float=None):
         self.spline_points = []
         self.spline_rot = []
         self.spline_dist = []
@@ -60,7 +62,10 @@ class GameTask:
 
         for i in range(len(self.spline_dist)):
             if i == len(self.spline_dist) - 1:
-                self.spline_rot.append(self.spline_rot[-1])
+                if final_rot is None:
+                    self.spline_rot.append(self.spline_rot[-1])
+                else:
+                    self.spline_rot.append(final_rot)
                 pass
             distance = self.spline_dist[i] + foresight
             closest_index = self.get_closest_point(distance=distance)
@@ -87,9 +92,13 @@ class GameTask:
             return closest_index
 
     def is_done(self):
-        return self.get_closest_point(point=self.robot.pose.translation) == len(self.spline_dist) - 1
+        is_translation_done = self.get_closest_point(point=self.robot.pose.translation) == len(self.spline_dist) - 1
+        is_rotation_done = abs((self.robot.pose.rot - self.spline_rot[-1])%(2*math.pi))
+        return is_rotation_done and is_translation_done
 
     def get_output(self, speed: float = 1, foresight: float = 0.5):
+        if self.robot.mode == "Manual":
+            return 0, 0, 0
         multiplier = speed / foresight
         robot_location = self.robot.pose.translation
         robot_angle = self.robot.pose.rot

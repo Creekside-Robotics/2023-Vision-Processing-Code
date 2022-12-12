@@ -84,7 +84,9 @@ class FieldProcessing:
         self.last_task = self.tasks[0]
         self.last_task.clean_key_points()
         self.generate_key_points(self.last_task)
-        self.last_task.generate_spline()
+        self.last_task.generate_spline(
+            final_rot=GameField.special_task_rotations.get(self.last_task.dynamic_object.object_name)
+        )
 
     def get_output(self):
         output = self.last_task.get_output(speed=GameField.robot_translational_speed)

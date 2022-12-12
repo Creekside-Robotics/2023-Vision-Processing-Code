@@ -53,7 +53,7 @@ class GameField:
     scout_position_one = DynamicObject(
         Translation(5, 0.5),
         0,
-        "Endgame Square",
+        "Scout",
         0,
         absolute_coordinates=Translation(5, 0.5)
     )
@@ -64,4 +64,10 @@ class GameField:
         endgame_square,
         scout_position_one
     ]
+
+    special_task_rotations = {
+        "Endgame Square": 0,
+        "Scout": math.pi / 4,
+        "Home Square": 0
+    }
 
