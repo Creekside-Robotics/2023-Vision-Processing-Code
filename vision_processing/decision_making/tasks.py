@@ -8,13 +8,6 @@ from vision_processing.vision.robot import Robot
 
 
 class GameTask:
-    key_points: list[Translation]
-    key_dist: list[float]
-    done_before = False
-    spline_points = list[Translation]
-    spline_rot = list[float]
-    spline_dist = list[float]
-    rating = 0
 
     def __init__(self, dynamic_object: DynamicObject, robot: Robot):
         """
@@ -25,6 +18,12 @@ class GameTask:
         self.dynamic_object = dynamic_object
         self.robot = robot
         self.key_points = [robot.pose.translation, dynamic_object.predict(delay=self.estimate_time())]
+        self.key_dist: list[float] = []
+        self.done_before = False
+        self.spline_points: list[Translation] = []
+        self.spline_rot: list[float] = []
+        self.spline_dist: list[float] = []
+        self.rating = 0
 
     def get_id(self):
         """

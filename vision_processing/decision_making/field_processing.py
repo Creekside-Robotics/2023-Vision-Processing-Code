@@ -8,9 +8,6 @@ from vision_processing.decision_making.tasks import GameTask
 
 
 class FieldProcessing:
-    last_task: GameTask | None = None
-    previous_successful_task_type = ""
-    tasks: list[GameTask] = []
 
     def __init__(self, complete_field: DynamicField):
         """
@@ -18,6 +15,9 @@ class FieldProcessing:
         @param complete_field: Dynamic field object to process
         """
         self.game_field = complete_field
+        self.last_task: GameTask | None = None
+        self.previous_successful_task_type = ""
+        self.tasks: list[GameTask] = []
 
     def update_tasks(self) -> None:
         """
