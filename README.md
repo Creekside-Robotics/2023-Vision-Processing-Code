@@ -19,7 +19,7 @@ There is some software that you will need to work on the project.
 - Install numpy using the following command `pip3 install numpy`
 - Install pynetworktables using the following command `pip3 install pynetworktables`
 - Install pyapriltags using the following command `pip3 install pyapriltags`
-- Install robotpy-cscore by downloading and installing binary package from [here](https://software.opensuse.org/download.html?project=home%3Aauscompgeek%3Arobotpy&package=python3-cscore)
+- Install robotpy-cscore using the following command `python -m pip install --pre robotpy-cscore`
 - Install scipy using the following command `pip3 install scipy`
 
 ## Documentation for WPILIB and other libraries
