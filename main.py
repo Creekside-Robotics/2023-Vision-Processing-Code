@@ -1,16 +1,18 @@
 import time
 
 from vision_processing import GameField, NetworkCommunication, Robot, DynamicObjectProcessing, DynamicField, \
-    FieldProcessing, ReferencePoint
+    FieldProcessing, ReferencePoint, ImageCommunications, UserInterface
 
 cameras = GameField.cameras
 object_detection = DynamicObjectProcessing()
 
 communications = NetworkCommunication()
+image_communications = ImageCommunications("HyperClock UI")
 robot = Robot()
 
 field = DynamicField(robot, communications)
 field_processor = FieldProcessing(field)
+user_interface = UserInterface(field_processor)
 
 while True:
     dynamic_objects = []
@@ -31,6 +33,10 @@ while True:
 
     # Sending output to robot
     communications.set_robot_output(output)
+
+    # Generating and sending user interface
+    interface_frame = user_interface.generate_field()
+    image_communications.put_frame(interface_frame)
 
     # Printing FPS
     fps = 1 / (time.time() - timestamp)
