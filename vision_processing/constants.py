@@ -27,7 +27,7 @@ class GameField:
     apriltag_size = 0.1524
     apriltag_family = "tag16h5"
 
-    prediction_decay = 0.3
+    prediction_decay = 0.7
     robot_radius = 0.5
     robot_translational_speed = 1
     robot_angular_speed = math.pi
@@ -69,6 +69,17 @@ class GameField:
         "Endgame Square": 0,
         "Scout": math.pi / 4,
         "Home Square": 0
+    }
+
+    special_boundaries = {
+        Box(
+            Translation(0, 4),
+            Translation(3, 7)
+        ),
+        Box(
+            Translation(0.5, 0.5),
+            Translation(1.5, 1.5)
+        )
     }
 
     cameras = [
