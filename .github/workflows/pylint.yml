@@ -28,6 +28,7 @@ jobs:
         pip install scipy
         pip install pyapriltags
         pip install pynetworktables
+        pip install --pre robotpy-cscore
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
