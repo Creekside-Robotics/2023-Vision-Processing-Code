@@ -1,0 +1,2 @@
+from test_image_communications import TestImageCommunications
+from test_network_communinications import TestNetworkCommunication
