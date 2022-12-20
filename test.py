@@ -1,4 +1,5 @@
 import time
+import cv2
 
 from testing import TestImageCommunications, TestNetworkCommunication
 from vision_processing import GameField, Robot, DynamicObjectProcessing, DynamicField, \
@@ -42,3 +43,5 @@ while True:
     # Printing FPS
     fps = 1 / (time.time() - timestamp)
     print(f"Cycle was successful.\nFPS: {round(fps, 3)}")
+
+    cv2.waitKey(0)
