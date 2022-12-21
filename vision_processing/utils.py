@@ -1,7 +1,6 @@
 import math
 import statistics
 from typing import NamedTuple
-
 from scipy import spatial
 
 

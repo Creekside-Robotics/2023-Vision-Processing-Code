@@ -1,11 +1,19 @@
 import time
 import cv2
+import math
 
 from testing import TestImageCommunications, TestNetworkCommunication
 from vision_processing import GameField, Robot, DynamicObjectProcessing, DynamicField, \
-    FieldProcessing, ReferencePoint, UserInterface
+    FieldProcessing, ReferencePoint, UserInterface, Camera
 
-cameras = GameField.cameras
+cameras = [
+    Camera(
+        (0.106, 0, 0.6606),
+        (-math.pi / 6, 0),
+        636,
+        "testing/testing_resources/HyperClock Test Video.mp4"
+    )
+]
 object_detection = DynamicObjectProcessing()
 
 communications = TestNetworkCommunication()
