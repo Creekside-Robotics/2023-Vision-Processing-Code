@@ -1,5 +1,5 @@
 from ..constants import GameField
-from ..utils import Translation, dynamic_object_counter, Pose
+from ..utils import Pose, Translation, dynamic_object_counter
 
 
 class DynamicObject:
@@ -11,7 +11,7 @@ class DynamicObject:
         timestamp: float,
         velocity: tuple[float, float] = (0, 0),
         absolute_coordinates: Translation = Translation(0, 0),
-        probability: float = 1
+        probability: float = 1,
     ):
         """
         Class to represent a moving object on a field
@@ -37,7 +37,9 @@ class DynamicObject:
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
 
-    def predict(self, *, delay: float | None = None, when: float | None = None) -> Translation:
+    def predict(
+        self, *, delay: float | None = None, when: float | None = None
+    ) -> Translation:
         """
         Predict the position of an object in the future.
         Choose either ``delay`` for X seconds in the future,
@@ -60,11 +62,13 @@ class DynamicObject:
         _step = delay or (when - self.timestamp)
 
         return Translation(
-            self.absolute_coordinates.x + self.velocity[0]*_step,
-            self.absolute_coordinates.y + self.velocity[1]*_step,
+            self.absolute_coordinates.x + self.velocity[0] * _step,
+            self.absolute_coordinates.y + self.velocity[1] * _step,
         )
 
-    def update(self, other: "DynamicObject | None" = None, timestamp: float| None = None) -> None:
+    def update(
+        self, other: "DynamicObject | None" = None, timestamp: float | None = None
+    ) -> None:
         """
         Update a dynamic object with information from a newer one
 
@@ -102,4 +106,6 @@ class DynamicObject:
         @param robot_pose: The current pose of the robot
         @return: null
         """
-        self.absolute_coordinates = self.relative_coordinates.relative_to_pose(robot_pose)
+        self.absolute_coordinates = self.relative_coordinates.relative_to_pose(
+            robot_pose
+        )

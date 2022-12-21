@@ -13,9 +13,6 @@ class ReferencePoint:
         pose_to_robot = pose_to_robot.reverse().relative_to_pose(pose_to_field)
         self.robot_pose = pose_to_robot
 
-    def estimatatedRobotPose(self) -> Pose:
-        return self.robot_pose
-
     @classmethod
     def from_apriltags(cls, camera: Camera) -> list["ReferencePoint"]:
         """
@@ -23,7 +20,7 @@ class ReferencePoint:
         :rtype ReferencePoint
         """
         detector = pyapriltags.apriltags.Detector(GameField.apriltag_family)
-        image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(camera.frame, cv2.COLOR_BGR2GRAY)
 
         # noinspection PyTypeChecker
         detections = detector.detect(
@@ -40,8 +37,12 @@ class ReferencePoint:
 
         reference_points = [
             cls(
-                DetectionPoseInterpretation(camera, detection).get_pose_relative_to_robot(),
-                DetectionPoseInterpretation(camera, detection).get_pose_relative_to_field(),
+                DetectionPoseInterpretation(
+                    camera, detection
+                ).get_pose_relative_to_robot(),
+                DetectionPoseInterpretation(
+                    camera, detection
+                ).get_pose_relative_to_field(),
             )
             for detection in detections
         ]

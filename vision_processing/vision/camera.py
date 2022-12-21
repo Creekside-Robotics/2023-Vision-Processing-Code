@@ -1,7 +1,9 @@
 import math
 from time import time
+
 import cv2
 import numpy as np
+
 from ..utils import Pixel, Translation
 
 
@@ -36,18 +38,6 @@ class Camera:
     def update_frame(self) -> None:
         self.frame = self.input_feed.read()[1]
         self.frame_time = time()
-
-    def get_frame(self) -> np.ndarray:
-        """
-        :return: latest frame from camera
-        """
-        return self.frame
-
-    def get_frame_time(self) -> float:
-        """
-        :return: time of latest frame capture
-        """
-        return self.frame_time
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel

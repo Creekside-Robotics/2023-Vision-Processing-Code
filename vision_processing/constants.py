@@ -1,21 +1,13 @@
 import math
 
-from . import DynamicObject, Camera
-from .utils import Pose, Translation, Box
+from . import Camera, DynamicObject
+from .utils import Box, Pose, Translation
 
 
 class GameField:
     # Game field class storing game field relative data
-    field_boundary = Box(
-        Translation(0, 0),
-        Translation(10, 7)
-    )
-    dead_zones = [
-        Box(
-            Translation(4.5, 3),
-            Translation(5.5, 4)
-        )
-    ]
+    field_boundary = Box(Translation(0, 0), Translation(10, 7))
+    dead_zones = [Box(Translation(4.5, 3), Translation(5.5, 4))]
 
     reference_points = {
         1: Pose(Translation(4.5, 3.5), 0),
@@ -37,7 +29,7 @@ class GameField:
         1.5,
         "Home Square",
         0,
-        absolute_coordinates=Translation(1.5, 5.5)
+        absolute_coordinates=Translation(1.5, 5.5),
     )
     home_location.id = 0
 
@@ -46,29 +38,21 @@ class GameField:
         0,
         "Endgame Square",
         0,
-        absolute_coordinates=Translation(0, 0)
+        absolute_coordinates=Translation(0, 0),
     )
     endgame_square.id = 1
 
     scout_position_one = DynamicObject(
-        Translation(5, 0.5),
-        0,
-        "Scout",
-        0,
-        absolute_coordinates=Translation(5, 0.5)
+        Translation(5, 0.5), 0, "Scout", 0, absolute_coordinates=Translation(5, 0.5)
     )
     scout_position_one.id = 2
 
-    special_objects = [
-        home_location,
-        endgame_square,
-        scout_position_one
-    ]
+    special_objects = [home_location, endgame_square, scout_position_one]
 
     special_task_rotations = {
         "Endgame Square": 0,
         "Scout": math.pi / 4,
-        "Home Square": 0
+        "Home Square": 0,
     }
 
     special_boundaries = {
@@ -83,16 +67,6 @@ class GameField:
     }
 
     cameras = [
-        Camera(
-            (0.106, 0, 0.6606),
-            (-math.pi/6, 0),
-            636,
-            0
-        ),
-        Camera(
-            (-0.106, 0, 0.6606),
-            (-math.pi / 6, math.pi),
-            734,
-            1
-        )
+        Camera((0.106, 0, 0.6606), (-math.pi / 6, 0), 636, 0),
+        Camera((-0.106, 0, 0.6606), (-math.pi / 6, math.pi), 734, 1),
     ]

@@ -8,7 +8,6 @@ from vision_processing.vision.robot import Robot
 
 
 class GameTask:
-
     def __init__(self, dynamic_object: DynamicObject, robot: Robot):
         """
         Class representing task that con be completed by the robot
@@ -17,7 +16,10 @@ class GameTask:
         """
         self.dynamic_object = dynamic_object
         self.robot = robot
-        self.key_points = [robot.pose.translation, dynamic_object.predict(delay=self.estimate_time())]
+        self.key_points = [
+            robot.pose.translation,
+            dynamic_object.predict(delay=self.estimate_time()),
+        ]
         self.key_dist: list[float] = []
         self.done_before = False
         self.spline_points: list[Translation] = []
@@ -25,7 +27,8 @@ class GameTask:
         self.spline_dist: list[float] = []
         self.rating = 0
 
-    def get_id(self):
+    @property
+    def id(self):
         """
         Gets task id
         @return: task id
@@ -37,7 +40,10 @@ class GameTask:
         Estimates the time to complete the task
         @return: task time
         """
-        estimated_travel_distance = abs(self.dynamic_object.absolute_coordinates - self.robot.pose.translation) * 1.2
+        estimated_travel_distance = (
+            abs(self.dynamic_object.absolute_coordinates - self.robot.pose.translation)
+            * 1.2
+        )
         estimated_travel_speed = GameField.robot_translational_speed * 0.9
         travel_time = estimated_travel_distance / estimated_travel_speed
         return travel_time
@@ -48,13 +54,25 @@ class GameTask:
         @return: None
         """
         if self.done_before:
-            farthest_distance = self.spline_dist[self.get_closest_point(point=self.robot.pose.translation)]
+            farthest_distance = self.spline_dist[
+                self.get_closest_point(point=self.robot.pose.translation)
+            ]
             for i in range(len(self.key_dist) - 2, 1, -1):
                 if self.key_dist[i] > farthest_distance:
                     self.key_dist.pop(i)
                     self.key_points.pop(i)
-            self.key_dist.insert(-2, self.spline_dist[self.get_closest_point(point=self.robot.pose.translation)])
-            self.key_points.insert(-2, self.spline_points[self.get_closest_point(point=self.robot.pose.translation)])
+            self.key_dist.insert(
+                -2,
+                self.spline_dist[
+                    self.get_closest_point(point=self.robot.pose.translation)
+                ],
+            )
+            self.key_points.insert(
+                -2,
+                self.spline_points[
+                    self.get_closest_point(point=self.robot.pose.translation)
+                ],
+            )
 
     def generate_spline(self, foresight: float = 1, final_rot: float = None):
         """
@@ -88,14 +106,15 @@ class GameTask:
                     self.spline_rot.append(self.spline_rot[-1])
                 else:
                     self.spline_rot.append(final_rot)
-                pass
             distance = self.spline_dist[i] + foresight
             closest_index = self.get_closest_point(distance=distance)
-            angle = (self.spline_points[closest_index] - self.spline_points[i])
+            angle = self.spline_points[closest_index] - self.spline_points[i]
             self.spline_rot.append(angle)
         self.done_before = True
 
-    def get_closest_point(self, distance: float = None, point: Translation = None) -> int:
+    def get_closest_point(
+        self, distance: float = None, point: Translation = None
+    ) -> int:
         """
         Gets the closest point on spline to input position or distance
         @param distance: distance along path
@@ -124,13 +143,24 @@ class GameTask:
         Returns if the task is done
         @return: whether the task is done, bool
         """
-        is_translation_done = self.get_closest_point(point=self.robot.pose.translation) == len(self.spline_dist) - 1
+        is_translation_done = (
+            self.get_closest_point(point=self.robot.pose.translation)
+            == len(self.spline_dist) - 1
+        )
         if self.dynamic_object.object_name == "Ball":
-            is_translation_done = abs(self.robot.pose.translation - self.spline_points[-1]) < self.robot.size
-        is_rotation_done = abs((self.robot.pose.rot - self.spline_rot[-1]) % (2 * math.pi)) < math.pi/6
+            is_translation_done = (
+                abs(self.robot.pose.translation - self.spline_points[-1])
+                < self.robot.size
+            )
+        is_rotation_done = (
+            abs((self.robot.pose.rot - self.spline_rot[-1]) % (2 * math.pi))
+            < math.pi / 6
+        )
         return is_rotation_done and is_translation_done
 
-    def get_output(self, speed: float = 1, foresight: float = 0.5) -> tuple[float, float, float]:
+    def get_output(
+        self, speed: float = 1, foresight: float = 0.5
+    ) -> tuple[float, float, float]:
         """
         @param speed: Speed of robot
         @param foresight: Distance ahead that robot is moving to
@@ -144,12 +174,17 @@ class GameTask:
 
         index_of_goal = self.get_closest_point(
             distance=(
-                    self.spline_dist[self.get_closest_point(point=robot_location)] + foresight
+                self.spline_dist[self.get_closest_point(point=robot_location)]
+                + foresight
             )
         )
 
-        translational_velocity = self.spline_points[index_of_goal] - robot_location
-        rotational_velocity_unbound = (self.spline_rot[index_of_goal] - robot_angle)
-        rotational_velocity = np.arctan2(np.sin(rotational_velocity_unbound), np.cos(rotational_velocity_unbound))
+        translational_velocity = (
+            self.spline_points[index_of_goal] - robot_location
+        ) * multiplier
+        rotational_velocity_unbound = self.spline_rot[index_of_goal] - robot_angle
+        rotational_velocity = np.arctan2(
+            np.sin(rotational_velocity_unbound), np.cos(rotational_velocity_unbound)
+        )
 
         return translational_velocity.x, translational_velocity.y, rotational_velocity

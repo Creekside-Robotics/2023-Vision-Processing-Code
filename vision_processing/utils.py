@@ -6,6 +6,7 @@ from scipy import spatial
 
 class Pixel(NamedTuple):
     """A pixel coordinate on a camera"""
+
     x: int
     y: int
 
@@ -67,7 +68,7 @@ class Translation(NamedTuple):
     @staticmethod
     def angle_between(translation: "Translation", other: "Translation"):
         dot_prod = Translation.dot_product(translation, other)
-        cos_of_angle = dot_prod/(abs(translation) * abs(other))
+        cos_of_angle = dot_prod / (abs(translation) * abs(other))
         return math.acos(cos_of_angle)
 
     def angle_of(self):
@@ -167,8 +168,10 @@ class Box:
         self.radius = abs(self.lower_limit - self.center)
 
     def is_inside(self, point: Translation, radius: float = 0) -> bool:
-        if self.lower_limit.x + radius <= point.x <= self.upper_limit.x - radius \
-                and self.lower_limit.y + radius <= point.y <= self.upper_limit.y - radius:
+        if (
+            self.lower_limit.x + radius <= point.x <= self.upper_limit.x - radius
+            and self.lower_limit.y + radius <= point.y <= self.upper_limit.y - radius
+        ):
             return True
         else:
             return False

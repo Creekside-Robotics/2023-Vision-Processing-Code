@@ -1,11 +1,11 @@
 import networktables
 
 from vision_processing import ReferencePoint
+
 from ..utils import Pose, Translation
 
 
 class NetworkCommunication:
-
     def __init__(self):
         """
         NetworkCommunications is a class allowing the communication of robot data between the roborio and coproccesser
@@ -23,12 +23,10 @@ class NetworkCommunication:
         Sends pose data from a list of reference points over networktables
         @param apriltag_array: List of apriltag reference points
         """
-        average_pose = Pose.average_poses([tag.estimatatedRobotPose() for tag in apriltag_array])
-        self.robot_data_table.getEntry("AprilTag Pose").setDoubleArray((
-            average_pose.translation.x,
-            average_pose.translation.y,
-            average_pose.rot
-        ))
+        average_pose = Pose.average_poses([tag.robot_pose for tag in apriltag_array])
+        self.robot_data_table.getEntry("AprilTag Pose").setDoubleArray(
+            (average_pose.translation.x, average_pose.translation.y, average_pose.rot)
+        )
 
     def get_kinematics(self) -> tuple[float, float, float]:
         """
@@ -42,14 +40,10 @@ class NetworkCommunication:
         Gets the calculated pose of the robot
         @return: Pose of robot
         """
-        pose_tuple = self.robot_data_table.getEntry("Fused Pose").getDoubleArray((0, 0, 0))
-        return Pose(
-            Translation(
-                pose_tuple[0],
-                pose_tuple[1]
-            ),
-            pose_tuple[2]
+        pose_tuple = self.robot_data_table.getEntry("Fused Pose").getDoubleArray(
+            (0, 0, 0)
         )
+        return Pose(Translation(pose_tuple[0], pose_tuple[1]), pose_tuple[2])
 
     def get_robot_mode(self) -> str:
         """

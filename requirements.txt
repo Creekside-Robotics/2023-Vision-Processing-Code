@@ -1,0 +1,6 @@
+scipy
+opencv-contrib-python
+pyapriltags
+pynetworktables
+numpy
+tensorflow

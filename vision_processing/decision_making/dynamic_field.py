@@ -2,13 +2,14 @@ from .. import NetworkCommunication
 from ..vision.robot import Robot
 from ..vision.dyanmic_object import DynamicObject
 from vision_processing.vision.reference_point import ReferencePoint
-from vision_processing.constants import GameField
+from vision_processing.vision.robot import Robot
 
 
 class DynamicField:
     """
     A class representing the field merged by multiple frames
     """
+
     def __init__(self, robot: Robot, communications: NetworkCommunication):
         """
         Creates a DynamicField object
@@ -40,10 +41,10 @@ class DynamicField:
         self.game_time = self.communications.get_game_time()
 
     def update_field(
-            self,
-            timestamp: float,
-            april_tag_data: list[ReferencePoint],
-            dynamic_objects: list[DynamicObject]
+        self,
+        timestamp: float,
+        april_tag_data: list[ReferencePoint],
+        dynamic_objects: list[DynamicObject],
     ) -> None:
         """
         Class to update the field, communicates with robot and updates objects on field
@@ -55,7 +56,9 @@ class DynamicField:
         self.sync_with_robot(april_tag_data)
         self.update_objects(dynamic_objects, timestamp)
 
-    def update_objects(self, new_objects: list[DynamicObject], timestamp: float) -> None:
+    def update_objects(
+        self, new_objects: list[DynamicObject], timestamp: float
+    ) -> None:
         """
         Updates all objects on the field
         @param new_objects: New objects on field
@@ -68,16 +71,18 @@ class DynamicField:
         for obj in self.objects:
             min_dist = 0.2
             update_index = -1
-            for i in range(0, len(new_objects)):
-                distance = abs(new_objects[i].absolute_coordinates - obj.predict(when=new_objects[i].timestamp))
-                if distance < min_dist and obj.object_name == new_objects[i].object_name:
+            for i, new_obj in enumerate(new_objects):
+                distance = abs(
+                    new_obj.absolute_coordinates - obj.predict(when=new_obj.timestamp)
+                )
+                if distance < min_dist and obj.object_name == new_obj.object_name:
                     min_dist = distance
                     update_index = i
             if update_index == -1:
                 obj.update(timestamp=timestamp)
             else:
                 obj.update(other=new_objects[update_index])
-                new_objects.pop(update_index)
+                del new_objects[update_index]
 
         self.objects.extend(new_objects)
         self.objects = sorted(self.objects, key=lambda obj: obj.probability)
@@ -86,20 +91,20 @@ class DynamicField:
     def clean_objects(self):
         """
         Cleans the list of objects by removing objects that are outside boundaries, inside dead-zones, or have decayed
-        probability. @return: null
+        probability.
+        @return: null
         """
-        for i in range(len(self.objects) - 1, -1, -1):
+        for i in reversed(range(len(self.objects))):
             delete = False
 
             if self.objects[i].probability < 0.1:
                 delete = True
-            if not GameField.field_boundary.is_inside(self.objects[i].absolute_coordinates):
+            if not GameField.field_boundary.is_inside(
+                self.objects[i].absolute_coordinates
+            ):
                 delete = True
             for box in GameField.dead_zones:
                 if box.is_inside(self.objects[i].absolute_coordinates):
                     delete = True
             if delete:
                 self.objects.pop(i)
-
-
-
