@@ -2,27 +2,27 @@ import time
 import cv2
 import math
 
-from testing import TestImageCommunications, TestNetworkCommunication
-from vision_processing import GameField, Robot, DynamicObjectProcessing, DynamicField, \
-    FieldProcessing, ReferencePoint, UserInterface, Camera
+import vision_processing
+import testing
+
 
 cameras = [
-    Camera(
+    vision_processing.Camera(
         (0.106, 0, 0.6606),
         (-math.pi / 6, 0),
         636,
         "testing/testing_resources/HyperClock Test Video.mp4"
     )
 ]
-object_detection = DynamicObjectProcessing()
+object_detection = vision_processing.DynamicObjectProcessing()
 
-communications = TestNetworkCommunication()
-image_communications = TestImageCommunications("HyperClock UI")
-robot = Robot()
+communications = testing.TestNetworkCommunication()
+image_communications = testing.TestImageCommunications("HyperClock UI")
+robot = vision_processing.Robot()
 
-field = DynamicField(robot, communications)
-field_processor = FieldProcessing(field)
-user_interface = UserInterface(field_processor)
+field = vision_processing.DynamicField(robot, communications)
+field_processor = vision_processing.FieldProcessing(field)
+user_interface = vision_processing.UserInterface(field_processor)
 
 while True:
     dynamic_objects = []
@@ -32,7 +32,7 @@ while True:
     # Processing frames
     for camera in cameras:
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
-        reference_points.extend(ReferencePoint.from_apriltags(camera))
+        reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
     # Updating field
     field.update_field(timestamp, reference_points, dynamic_objects)

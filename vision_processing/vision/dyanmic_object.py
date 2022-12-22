@@ -37,6 +37,31 @@ class DynamicObject:
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
 
+    @classmethod
+    def from_list(cls, parameter_list: tuple) -> 'DynamicObject':
+        """
+        Returns a DynamicObject from a list of parameters to avoid circular import errors
+        @param parameter_list: List of parameters: (
+            relative_coordinates: Translation,
+            radius: float,
+            object_name,
+            timestamp: float,
+            absolute_coordinates: Translation = Translation(0, 0),
+            object_id: int
+        )
+        @return: DynmaicObject
+        """
+        dynamic_object = cls(
+            parameter_list[0],
+            parameter_list[1],
+            parameter_list[2],
+            parameter_list[3],
+            absolute_coordinates=parameter_list[4],
+        )
+        dynamic_object.id = parameter_list[5]
+
+        return dynamic_object
+
     def predict(
         self, *, delay: float | None = None, when: float | None = None
     ) -> Translation:

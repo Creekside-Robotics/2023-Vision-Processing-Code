@@ -1,5 +1,5 @@
 scipy
-opencv-contrib-python
+opencv-python
 pyapriltags
 pynetworktables
 numpy

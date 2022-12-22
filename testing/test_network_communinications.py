@@ -10,7 +10,7 @@ class TestNetworkCommunication(NetworkCommunication):
         self.end_time = time.time() + 150
 
     def set_apriltag_pose_data(self, apriltag_array: list[ReferencePoint]) -> None:
-        average_pose = Pose.average_poses([tag.estimatatedRobotPose() for tag in apriltag_array])
+        average_pose = Pose.average_poses([tag.robot_pose for tag in apriltag_array])
         self.pose = average_pose
 
     def get_kinematics(self) -> tuple[float, float, float]:

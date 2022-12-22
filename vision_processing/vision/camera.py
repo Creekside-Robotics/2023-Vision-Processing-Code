@@ -35,6 +35,25 @@ class Camera:
         # allowing us to see shape of the camera capture, this would be its height in pixels.
         self.center_pixel_height: float = focal_length
 
+    @classmethod
+    def from_list(cls, parameter_list: tuple) -> "Camera":
+        """
+        Returns a Camera object from a list of parameters in order to avoid circular import errors.
+        @param parameter_list: List of parameters: [
+            translational_offset: tuple[float, float, float],
+            rotational_offset: tuple[float, float],
+            focal_length: float,
+            port_id
+        ]
+        @return: Camera from the list
+        """
+        return cls(
+            parameter_list[0],
+            parameter_list[1],
+            parameter_list[2],
+            parameter_list[3]
+        )
+
     def update_frame(self) -> None:
         self.frame = self.input_feed.read()[1]
         self.frame_time = time()

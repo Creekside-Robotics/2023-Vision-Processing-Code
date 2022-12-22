@@ -1,18 +1,18 @@
 import time
 
-from vision_processing import GameField, NetworkCommunication, Robot, DynamicObjectProcessing, DynamicField, \
-    FieldProcessing, ReferencePoint, ImageCommunications, UserInterface
+import vision_processing
 
-cameras = GameField.cameras
-object_detection = DynamicObjectProcessing()
 
-communications = NetworkCommunication()
-image_communications = ImageCommunications("HyperClock UI")
-robot = Robot()
+cameras = [vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras]
+object_detection = vision_processing.DynamicObjectProcessing()
 
-field = DynamicField(robot, communications)
-field_processor = FieldProcessing(field)
-user_interface = UserInterface(field_processor)
+communications = vision_processing.NetworkCommunication()
+image_communications = vision_processing.ImageCommunications("HyperClock UI")
+robot = vision_processing.Robot()
+
+field = vision_processing.DynamicField(robot, communications)
+field_processor = vision_processing.FieldProcessing(field)
+user_interface = vision_processing.UserInterface(field_processor)
 
 while True:
     dynamic_objects = []
@@ -22,7 +22,7 @@ while True:
     # Processing frames
     for camera in cameras:
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
-        reference_points.extend(ReferencePoint.from_apriltags(camera))
+        reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
     # Updating field
     field.update_field(timestamp, reference_points, dynamic_objects)

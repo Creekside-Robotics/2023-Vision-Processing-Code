@@ -1,8 +1,6 @@
-from .. import NetworkCommunication
-from ..vision.robot import Robot
-from ..vision.dyanmic_object import DynamicObject
-from vision_processing.vision.reference_point import ReferencePoint
-from vision_processing.vision.robot import Robot
+from ..communication import NetworkCommunication
+from ..constants import GameField
+from ..vision import DynamicObject, ReferencePoint, Robot
 
 
 class DynamicField:

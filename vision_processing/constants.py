@@ -1,6 +1,5 @@
 import math
 
-from . import Camera, DynamicObject
 from .utils import Box, Pose, Translation
 
 
@@ -24,28 +23,27 @@ class GameField:
     robot_translational_speed = 1
     robot_angular_speed = math.pi
 
-    home_location = DynamicObject(
+    home_location = (
         Translation(1.5, 5.5),
         1.5,
         "Home Square",
         0,
-        absolute_coordinates=Translation(1.5, 5.5),
+        (1.5, 5.5),
+        0
     )
-    home_location.id = 0
 
-    endgame_square = DynamicObject(
+    endgame_square = (
         Translation(1, 1),
         0,
         "Endgame Square",
         0,
-        absolute_coordinates=Translation(0, 0),
+        (0, 0),
+        1
     )
-    endgame_square.id = 1
 
-    scout_position_one = DynamicObject(
-        Translation(5, 0.5), 0, "Scout", 0, absolute_coordinates=Translation(5, 0.5)
+    scout_position_one = (
+        Translation(5, 0.5), 0, "Scout", 0, (5, 0.5), 2
     )
-    scout_position_one.id = 2
 
     special_objects = [home_location, endgame_square, scout_position_one]
 
@@ -67,6 +65,6 @@ class GameField:
     }
 
     cameras = [
-        Camera((0.106, 0, 0.6606), (-math.pi / 6, 0), 636, 0),
-        Camera((-0.106, 0, 0.6606), (-math.pi / 6, math.pi), 734, 1),
+        ((0.106, 0, 0.6606), (-math.pi / 6, 0), 636, 0),
+        ((-0.106, 0, 0.6606), (-math.pi / 6, math.pi), 734, 1),
     ]

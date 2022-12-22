@@ -3,8 +3,9 @@ import math
 import numpy as np
 from scipy import interpolate
 
-from vision_processing import DynamicObject, GameField, Translation
-from vision_processing.vision.robot import Robot
+from ..vision import DynamicObject, Robot
+from ..utils import Translation
+from ..constants import GameField
 
 
 class GameTask:

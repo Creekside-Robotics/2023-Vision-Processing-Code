@@ -1,9 +1,9 @@
 from cv2 import imshow
 
-import vision_processing
+from vision_processing import ImageCommunications
 
 
-class TestImageCommunications(vision_processing.ImageCommunications):
+class TestImageCommunications(ImageCommunications):
     def __init__(self, name: str):
         super().__init__(name)
         self.name = name

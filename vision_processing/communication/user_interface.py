@@ -3,7 +3,10 @@ import math
 import cv2
 import numpy as np
 
-from vision_processing import FieldProcessing, Translation, DynamicObject, Box, GameField
+from ..vision import DynamicObject
+from ..constants import GameField
+from ..utils import Translation, Box
+from ..decision_making import FieldProcessing
 
 
 class UserInterface:

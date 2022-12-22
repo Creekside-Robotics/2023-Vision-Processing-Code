@@ -2,9 +2,11 @@ import math
 
 import numpy as np
 
-from vision_processing import Box, DynamicObject, GameField, Translation
-from vision_processing.decision_making.dynamic_field import DynamicField
-from vision_processing.decision_making.tasks import GameTask
+from ..utils import Box, Translation
+from ..constants import GameField
+from ..vision import DynamicObject
+from .dynamic_field import DynamicField
+from .tasks import GameTask
 
 
 class FieldProcessing:
@@ -34,7 +36,7 @@ class FieldProcessing:
             ):
                 self.tasks.append(GameTask(obj, self.game_field.robot))
         self.tasks.extend(
-            GameTask(obj, self.game_field.robot) for obj in GameField.special_objects
+            GameTask(DynamicObject.from_list(obj), self.game_field.robot) for obj in GameField.special_objects
         )
 
     def weight_history(self, task: GameTask) -> float:
