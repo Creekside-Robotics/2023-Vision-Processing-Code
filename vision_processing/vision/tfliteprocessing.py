@@ -65,7 +65,7 @@ class DynamicObjectProcessing:
     def __init__(self):
         print("Initializing TFLite runtime interpreter")
         try:
-            model_path = "tensorflow_resorces/model.tflite"
+            model_path = "vision_processing/vision/tensorflow_resources/model.tflite"
             self.interpreter = tf.lite.Interpreter(
                 model_path,
                 experimental_delegates=[
@@ -73,15 +73,15 @@ class DynamicObjectProcessing:
                 ],
             )
             self.hardware_type = "Coral Edge TPU"
-        except ValueError:
+        except:
             print("Failed to create Interpreter with Coral, switching to unoptimized")
-            model_path = "tensorflow_resources/unoptimized.tflite"
+            model_path = "vision_processing/vision/tensorflow_resources/unoptimized.tflite"
             self.interpreter = tf.lite.Interpreter(model_path)
             self.hardware_type = "Unoptimized"
 
         self.interpreter.allocate_tensors()
         print("Getting labels")
-        parser = PBTXTParser("tensorflow_resorces/map.pbtxt")
+        parser = PBTXTParser("vision_processing/vision/tensorflow_resources/map.txt")
         parser.parse()
         self.labels = parser.get_labels()
         self.frames = 0
@@ -151,7 +151,7 @@ class DynamicObjectProcessing:
         """
         width, height = self.input_size()
         h, w, _ = frame.shape
-        new_img = np.reshape(cv2.resize(frame, (300, 300)), (1, 300, 300, 3))
+        new_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
         self.interpreter.set_tensor(
             self.interpreter.get_input_details()[0]["index"], np.copy(new_img)
         )
