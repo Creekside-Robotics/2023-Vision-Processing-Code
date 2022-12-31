@@ -19,22 +19,13 @@ class PBTXTParser:
         self.file: list[str] | None = None
 
     def parse(self):
+        label_map = []
         with open(self.path, "r") as f:
-            self.file = "".join([i.replace("item", "") for i in f.readlines()])
-            blocks = []
-            obj = ""
-            for i in self.file:
-                obj += i
-                if i == "}":
-                    blocks.append(obj)
-                    obj = ""
-            self.file = blocks
-            label_map = []
-            for obj in self.file:
-                obj = [i for i in obj.split("\n") if i]
-                name = obj[2].split()[1][1:-1]
-                label_map.append(name)
-            self.file = label_map
+            lines = f.readlines()
+            for line in lines:
+                label_map.append(line.strip("\n"))
+        print(label_map)
+        self.file = label_map
 
     def get_labels(self) -> list[str] | None:
         return self.file
@@ -63,6 +54,7 @@ class BBox(collections.namedtuple("BBox", ["xmin", "ymin", "xmax", "ymax"])):
 
 class DynamicObjectProcessing:
     def __init__(self):
+        self.input_img = None
         print("Initializing TFLite runtime interpreter")
         try:
             model_path = "vision_processing/vision/tensorflow_resources/model.tflite"
@@ -102,7 +94,7 @@ class DynamicObjectProcessing:
         # output
         boxes, class_ids, scores, x_scale, y_scale = self.get_output(scale)
         for i in range(len(boxes)):
-            if scores[i] > 0.5:
+            if scores[i] > 0.4:
 
                 class_id = class_ids[i]
                 if np.isnan(class_id):
@@ -151,27 +143,29 @@ class DynamicObjectProcessing:
         """
         width, height = self.input_size()
         h, w, _ = frame.shape
-        new_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
-        self.interpreter.set_tensor(
-            self.interpreter.get_input_details()[0]["index"], np.copy(new_img)
-        )
+        self.input_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
         return width / w, height / h
 
-    def output_tensor(self, i: int) -> np.ndarray:
+    def output_tensor(self) -> np.ndarray:
         """Returns output tensor view."""
-        tensor = self.interpreter.get_tensor(
-            self.interpreter.get_output_details()[i]["index"]
-        )
-        return np.squeeze(tensor)
+        signature_fn = self.interpreter.get_signature_runner()
+
+        # Feed the input image to the model
+        return signature_fn(images=self.input_img)
+
 
     def get_output(
         self, scale: tuple[float, float]
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
-        boxes = self.output_tensor(0)
-        class_ids = self.output_tensor(1)
-        scores = self.output_tensor(2)
+        output = self.output_tensor()
+
+        # Get all outputs from the model
+        # count = int(np.squeeze(output['output_0']))
+        scores = np.squeeze(output['output_1'])
+        classes = np.squeeze(output['output_2'])
+        boxes = np.squeeze(output['output_3'])
 
         width, height = self.input_size()
         image_scale_x, image_scale_y = scale
         x_scale, y_scale = width / image_scale_x, height / image_scale_y
-        return boxes, class_ids, scores, x_scale, y_scale
+        return boxes, classes, scores, x_scale, y_scale

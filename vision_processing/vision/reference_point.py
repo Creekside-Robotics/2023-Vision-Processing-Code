@@ -77,15 +77,15 @@ class DetectionPoseInterpretation:
     @staticmethod
     def cartesian_to_polar_translation(
         x: float, y: float, z: float
-    ) -> tuple[float, float, float]:
-        return (
+    ) -> list[float, float, float]:
+        return [
             math.sqrt(x**2 + y**2 + z**2),
             math.atan(y / x),
             math.atan(z / math.sqrt(x**2 + y**2)),
-        )
+        ]
 
     def offset_pose_relative_to_robot(
-        self, polar_coordinates: tuple[float, float, float], theta: float, phi: float
+        self, polar_coordinates: list[float, float, float], theta: float, phi: float
     ) -> tuple[tuple[float, float, float], float, float]:
         theta += self.camera.rotational_offset[0]
         polar_coordinates[1] += self.camera.rotational_offset[0]
