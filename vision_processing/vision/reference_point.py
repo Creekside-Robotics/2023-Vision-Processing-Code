@@ -1,6 +1,7 @@
 import math
 
 import cv2
+import numpy
 import pyapriltags
 
 from ..constants import GameField
@@ -10,8 +11,9 @@ from .camera import Camera
 
 class ReferencePoint:
     def __init__(self, pose_to_robot: Pose, pose_to_field: Pose):
-        pose_to_robot = pose_to_robot.reverse().relative_to_pose(pose_to_field)
-        self.robot_pose = pose_to_robot
+        robot_to_reference = pose_to_robot.reverse()
+        robot_to_field = robot_to_reference.relative_to_pose(pose_to_field)
+        self.robot_pose = robot_to_field
 
     @classmethod
     def from_apriltags(cls, camera: Camera) -> list["ReferencePoint"]:
@@ -45,6 +47,7 @@ class ReferencePoint:
                 ).get_pose_relative_to_field(),
             )
             for detection in detections
+            if detection.decision_margin > 10
         ]
         return reference_points
 
@@ -66,13 +69,21 @@ class DetectionPoseInterpretation:
         )
 
     def get_data_from_detection(self) -> tuple[float, float, float, float, float]:
+
         x, y, z = (
             self.detection.pose_t[2],
             -self.detection.pose_t[0],
             -self.detection.pose_t[1],
         )
-        theta, phi = self.detection.pose_R[0], self.detection.pose_R[1]
+        theta, phi, zeta = DetectionPoseInterpretation.angles_from_rotational_matrix(self.detection.pose_R)
         return x, y, z, theta, phi
+
+    @staticmethod
+    def angles_from_rotational_matrix(rot_mat: numpy.ndarray) -> tuple[float, float, float]:
+        phi = math.atan2(rot_mat[2][1], rot_mat[2][2])
+        theta = -math.atan2(-rot_mat[2][0], math.sqrt(rot_mat[2][1]**2 + rot_mat[2][2]**2))
+        zeta = -math.atan2(rot_mat[1][0], rot_mat[0][0])
+        return theta, phi, zeta
 
     @staticmethod
     def cartesian_to_polar_translation(
@@ -80,8 +91,8 @@ class DetectionPoseInterpretation:
     ) -> list[float, float, float]:
         return [
             math.sqrt(x**2 + y**2 + z**2),
-            math.atan(y / x),
-            math.atan(z / math.sqrt(x**2 + y**2)),
+            math.atan2(y, x),
+            math.atan2(z, math.sqrt(x**2 + y**2)),
         ]
 
     def offset_pose_relative_to_robot(

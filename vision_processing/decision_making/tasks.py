@@ -86,12 +86,17 @@ class GameTask:
         self.spline_rot = []
         self.spline_dist = []
 
+        spline_degree = 3
+        if len(self.key_points) <= 3:
+            spline_degree = len(self.key_points) - 1
+
         # x,y coordinates of contour points, not monotonically increasing
         x = np.array([point.x for point in self.key_points])
         y = np.array([point.y for point in self.key_points])
 
         # build a spline representation of the contour
-        spline = interpolate.splprep([x, y], u=self.key_dist, s=0)
+        spline = interpolate.splprep([x, y], k=spline_degree)[0]
+        print(spline)
 
         # resample it at smaller distance intervals
         interp_d = np.linspace(self.key_dist[0], self.key_dist[-1], 50)
@@ -109,7 +114,7 @@ class GameTask:
                     self.spline_rot.append(final_rot)
             distance = self.spline_dist[i] + foresight
             closest_index = self.get_closest_point(distance=distance)
-            angle = self.spline_points[closest_index] - self.spline_points[i]
+            angle = (self.spline_points[closest_index] - self.spline_points[i]).angle_of()
             self.spline_rot.append(angle)
         self.done_before = True
 
@@ -149,14 +154,9 @@ class GameTask:
             == len(self.spline_dist) - 1
         )
         if self.dynamic_object.object_name == "Ball":
-            is_translation_done = (
-                abs(self.robot.pose.translation - self.spline_points[-1])
-                < self.robot.size
-            )
-        is_rotation_done = (
-            abs((self.robot.pose.rot - self.spline_rot[-1]) % (2 * math.pi))
-            < math.pi / 6
-        )
+            is_translation_done = abs(self.robot.pose.translation - self.spline_points[-1]) < self.robot.size
+
+        is_rotation_done = abs((self.robot.pose.rot - self.spline_rot[-1]) % (2 * math.pi)) < math.pi / 6
         return is_rotation_done and is_translation_done
 
     def get_output(

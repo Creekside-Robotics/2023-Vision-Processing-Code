@@ -113,7 +113,7 @@ class DynamicObjectProcessing:
                 ymax = int(bbox.ymax)
                 xmax = int(bbox.xmax)
                 relative_coordinates, radius = cam.get_dynamic_object_translation(
-                    Pixel(xmin, ymin), Pixel(xmax, ymax)
+                    Pixel(xmin, ymax), Pixel(xmax, ymax)
                 )
                 dynamic_objects.append(
                     DynamicObject(

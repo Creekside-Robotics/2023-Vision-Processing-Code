@@ -68,7 +68,7 @@ class Translation(NamedTuple):
     @staticmethod
     def angle_between(translation: "Translation", other: "Translation"):
         dot_prod = Translation.dot_product(translation, other)
-        cos_of_angle = dot_prod / (abs(translation) * abs(other))
+        cos_of_angle = round(dot_prod / (abs(translation) * abs(other)), 4)
         return math.acos(cos_of_angle)
 
     def angle_of(self):
@@ -123,7 +123,7 @@ class Pose:
         :rtype: Pose
         """
         polar_coordinates = (
-            spatial.distance.euclidean([0, 0], [self.x, self.y]),
+            abs(self.translation),
             math.atan2(self.y, self.x) + math.pi - self.rot,
         )
 

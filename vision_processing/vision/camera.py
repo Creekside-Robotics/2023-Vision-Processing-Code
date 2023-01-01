@@ -28,7 +28,7 @@ class Camera:
         self.translational_offset: tuple[float, float, float] = translational_offset
         self.rotational_offset: tuple[float, float] = rotational_offset
         self.frame: np.ndarray = self.input_feed.read()[1]
-        self.center: Pixel = Pixel(self.frame.shape[0], self.frame.shape[1])
+        self.center: Pixel = Pixel(self.frame.shape[1] // 2, self.frame.shape[0] // 2)
         self.frame_time = time()
 
         # If there was a vertical line, extending from the center of the image,
@@ -79,10 +79,7 @@ class Camera:
             (left_robot_relative[1] + right_robot_relative[1]) / 2,
         )
 
-        radius = math.sqrt(
-            (left_robot_relative[0] - bottom_center_robot_relative[0]) ** 2
-            + (left_robot_relative[1] - bottom_center_robot_relative[0]) ** 2
-        )
+        radius = (left_robot_relative[1] - bottom_center_robot_relative[1])
 
         robot_relative_coordinates = Translation(
             bottom_center_robot_relative[0]
@@ -101,16 +98,16 @@ class Camera:
         :param pixel_coordinates: Takes a tuple of length 2, x and y in pixel coordinate system.
         :return: tuple of length 2, translation relative to robot
         """
-        y_offset = -(pixel_coordinates.y - self.center.y)
-        x_offset = -(pixel_coordinates.x - self.center.x)
+        pixel_y_offset = pixel_coordinates.y - self.center.y
+        pixel_x_offset = pixel_coordinates.x - self.center.x
 
-        camera_relative_pitch = math.atan2(x_offset, self.center_pixel_height)
-        camera_relative_yaw = math.atan2(y_offset, self.center_pixel_height)
+        camera_relative_pitch = math.atan2(-pixel_y_offset, self.center_pixel_height)
+        camera_relative_yaw = math.atan2(-pixel_x_offset, self.center_pixel_height)
 
-        robot_relative_pitch = camera_relative_pitch + self.rotational_offset[0]
+        robot_relative_pitch = camera_relative_pitch + self.rotational_offset[1]
 
         pre_rotated_x = (
-            1 / math.tan(robot_relative_pitch) * -self.translational_offset[2]
+            1 / math.tan(-robot_relative_pitch) * self.translational_offset[2]
         )
         pre_rotated_y = math.tan(camera_relative_yaw) * math.sqrt(
             self.translational_offset[2] ** 2 + pre_rotated_x**2
@@ -122,7 +119,7 @@ class Camera:
 
         post_rotated_polar = (
             pre_rotated_polar[0],
-            pre_rotated_polar[1] + self.rotational_offset[1],
+            pre_rotated_polar[1] + self.rotational_offset[0],
         )
         post_rotated_cartesian = (
             math.cos(post_rotated_polar[1]) * post_rotated_polar[0],

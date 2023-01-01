@@ -9,13 +9,13 @@ class GameField:
     dead_zones = [Box(Translation(4.5, 3), Translation(5.5, 4))]
 
     reference_points = {
-        1: Pose(Translation(4.5, 3.5), 0),
-        2: Pose(Translation(x=5, y=3), math.pi / 2),
-        3: Pose(Translation(5.5, 3.5), math.pi),
-        4: Pose(Translation(5, 4), 3 * math.pi / 2),
+        0: Pose(Translation(4.5, 3.5), 0),
+        1: Pose(Translation(x=5, y=3), math.pi / 2),
+        2: Pose(Translation(5.5, 3.5), math.pi),
+        3: Pose(Translation(5, 4), 3 * math.pi / 2),
     }
 
-    apriltag_size = 0.1524
+    apriltag_size = 0.1224
     apriltag_family = "tag16h5"
 
     prediction_decay = 0.7
@@ -28,7 +28,7 @@ class GameField:
         1.5,
         "Home Square",
         0,
-        (1.5, 5.5),
+        Translation(1.5, 5.5),
         0
     )
 
@@ -37,12 +37,12 @@ class GameField:
         0,
         "Endgame Square",
         0,
-        (0, 0),
+        Translation(0, 0),
         1
     )
 
     scout_position_one = (
-        Translation(5, 0.5), 0, "Scout", 0, (5, 0.5), 2
+        Translation(5, 0.5), 0, "Scout", 0, Translation(5, 0.5), 2
     )
 
     special_objects = [home_location, endgame_square, scout_position_one]

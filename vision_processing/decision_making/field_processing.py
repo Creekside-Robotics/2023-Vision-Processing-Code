@@ -16,7 +16,7 @@ class FieldProcessing:
         @param complete_field: Dynamic field object to process
         """
         self.game_field = complete_field
-        self.last_task: GameTask | None = None
+        self.last_task: GameTask = GameTask(DynamicObject.from_list(GameField.special_objects[0]), self.game_field.robot)
         self.previous_successful_task_type = ""
         self.tasks: list[GameTask] = []
 
@@ -26,14 +26,10 @@ class FieldProcessing:
         @return: null
         """
         self.tasks = []
-        if self.last_task is not None:
-            self.tasks.append(self.last_task)
+        self.tasks.append(self.last_task)
+
         for obj in self.game_field.objects:
-            if (
-                obj.object_name != "Red Robot"
-                or "Blue Robot"
-                and obj.id != self.last_task.id
-            ):
+            if (obj.object_name != "Red Robot") and (obj.object_name != "Blue Robot"):
                 self.tasks.append(GameTask(obj, self.game_field.robot))
         self.tasks.extend(
             GameTask(DynamicObject.from_list(obj), self.game_field.robot) for obj in GameField.special_objects
@@ -143,7 +139,7 @@ class FieldProcessing:
         @param resolution: Distance between sample points used to create key points
         @return: None
         """
-        total_dist = abs(task.key_points[-1] - task.key_points[-2])
+        total_dist = abs(task.key_points[-2] - task.key_points[-1])
         obstructions = self.get_obstructing_objects()
 
         dist_to_finish = total_dist
@@ -152,12 +148,12 @@ class FieldProcessing:
         tracked_angular_changes = [None, None]
 
         while dist_to_finish > resolution:
-            direction_unit_vector = (task.key_points[-2] - task.key_points[-1]) / abs(
+            direction_unit_vector = (task.key_points[-1] - task.key_points[-2]) / abs(
                 task.key_points[-2] - task.key_points[-1]
             )
             test_point = (
                 direction_unit_vector * resolution * float(step_counter)
-                + task.key_points[-2]
+                + task.key_points[-1]
             )
             for obj in obstructions:
                 if self.within_object(test_point, obj):
@@ -174,24 +170,25 @@ class FieldProcessing:
                             obj.push_outside(test_point, self.game_field.robot.size)[0],
                         )
                     break
-                tracked_points.insert(0, test_point)
+                tracked_points.append(test_point)
                 break
             if step_counter > 3:
                 tracked_angular_changes[0] = Translation.angle_between(
-                    tracked_points[0] - task.key_points[-2],
-                    tracked_points[1] - task.key_points[-2],
+                    tracked_points[-3] - task.key_points[0],
+                    tracked_points[-2] - task.key_points[0],
                 )
                 tracked_angular_changes[1] = Translation.angle_between(
-                    tracked_points[1] - task.key_points[-2],
-                    tracked_points[2] - task.key_points[-2],
+                    tracked_points[-2] - task.key_points[0],
+                    tracked_points[-1] - task.key_points[0],
                 )
                 if tracked_angular_changes[0] > 0 and tracked_angular_changes[1] < 0:
-                    task.key_points.insert(-1, tracked_points[1])
+                    task.key_points.insert(-1, tracked_points[-2])
                     tracked_points = [task.key_points[-2]]
                     tracked_angular_changes = [None, None]
                     step_counter = 0
             step_counter += 1
             dist_to_finish = abs(tracked_points[-1] - task.key_points[-1])
+            print(dist_to_finish)
 
         x = np.array([point.x for point in task.key_points])
         y = np.array([point.y for point in task.key_points])

@@ -12,10 +12,10 @@ from ..decision_making import FieldProcessing
 class UserInterface:
     def __init__(self, field_processing: FieldProcessing):
         self.field_processing = field_processing
-        self.conversion_ratio = 1080 / self.field_processing.game_field.field_boundary.upper_limit.y
+        self.conversion_ratio = 350 / self.field_processing.game_field.field_boundary.upper_limit.y
 
     def translation_to_pixel_coordinates(self, translation: Translation) -> tuple[int, int]:
-        return -self.field_length_to_pixel_length(translation.y), -self.field_length_to_pixel_length(translation.x)
+        return 350 - self.field_length_to_pixel_length(translation.y), 500 - self.field_length_to_pixel_length(translation.x)
 
     def field_length_to_pixel_length(self, length: float) -> int:
         return int(length * self.conversion_ratio)
@@ -51,7 +51,7 @@ class UserInterface:
         return field
 
     def generate_field_base(self):
-        base = np.full(shape=[1080, 1080, 3], fill_value=(200, 200, 200), dtype=np.uint8)
+        base = np.full(shape=[500, 350, 3], fill_value=(200, 200, 200), dtype=np.uint8)
         for bound in GameField.special_boundaries:
             base = self.draw_box(base, bound, (150, 150, 150))
         return base
@@ -83,10 +83,10 @@ class UserInterface:
         robot_pose = self.field_processing.game_field.robot.pose
         center = self.translation_to_pixel_coordinates(robot_pose.translation)
         direction_endpoint = self.translation_to_pixel_coordinates(
-            Translation(math.cos(robot_pose.rot) * robot_radius, math.sin(robot_pose.rot) * robot_radius) \
+            Translation(math.cos(robot_pose.rot) * robot_radius, math.sin(robot_pose.rot) * robot_radius)
             + robot_pose.translation
         )
-        field = cv2.circle(field, center, 0, (0, 255, 0), thickness=robot_radius)
+        field = cv2.circle(field, center, 0, (0, 255, 0), thickness=self.field_length_to_pixel_length(robot_radius))
         field = cv2.line(field, center, direction_endpoint, (0, 0, 0), 5)
         return field
 
@@ -99,7 +99,7 @@ class UserInterface:
     def add_game_time(self, field):
         time = self.field_processing.game_field.game_time
         field = cv2.rectangle(field, (0, 0), (100, 50), (0, 0, 0), thickness=-1)
-        field = cv2.addText(field, str(int(time)), (5, 5), cv2.FONT_HERSHEY_COMPLEX_SMALL, 20, (255, 255, 255), 2)
+        field = cv2.putText(field, f"Time Remaining: {int(time)}", (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 20, (255, 255, 255), 2)
         return field
 
 
