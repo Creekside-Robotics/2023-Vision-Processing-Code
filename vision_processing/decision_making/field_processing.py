@@ -16,8 +16,8 @@ class FieldProcessing:
         @param complete_field: Dynamic field object to process
         """
         self.game_field = complete_field
-        self.last_task: GameTask = GameTask(DynamicObject.from_list(GameField.special_objects[0]), self.game_field.robot)
-        self.previous_successful_task_type = ""
+        self.last_task: GameTask | None = None
+        self.previous_successful_task_type = "Home Square"
         self.tasks: list[GameTask] = []
 
     def update_tasks(self) -> None:
@@ -26,13 +26,18 @@ class FieldProcessing:
         @return: null
         """
         self.tasks = []
-        self.tasks.append(self.last_task)
+        last_task_id = -1
+        if self.last_task is not None:
+            self.last_task.clean_key_points()
+            self.tasks.append(self.last_task)
+            last_task_id = self.last_task.id
 
         for obj in self.game_field.objects:
-            if (obj.object_name != "Red Robot") and (obj.object_name != "Blue Robot"):
+            if (obj.object_name != "Red Robot") and (obj.object_name != "Blue Robot") and (obj.id != last_task_id):
                 self.tasks.append(GameTask(obj, self.game_field.robot))
         self.tasks.extend(
-            GameTask(DynamicObject.from_list(obj), self.game_field.robot) for obj in GameField.special_objects
+            GameTask(DynamicObject.from_list(obj), self.game_field.robot) for obj in GameField.special_objects if
+            obj[5] != last_task_id
         )
 
     def weight_history(self, task: GameTask) -> float:
@@ -45,20 +50,20 @@ class FieldProcessing:
         weight = 1
         for obj in self.game_field.objects:
             if obj.object_name in ("Red Robot" or "Blue Robot"):
-                weight *= 0.99 ** (
-                    15
-                    - abs(
-                        obj.absolute_coordinates
-                        - task.dynamic_object.absolute_coordinates
-                    )
+                weight *= 0.98 ** (
+                        15
+                        - abs(
+                    obj.absolute_coordinates
+                    - task.dynamic_object.absolute_coordinates
+                )
                 )
             if obj.object_name == "Home Square":
                 weight *= 1.05 ** (
-                    15
-                    - abs(
-                        obj.absolute_coordinates
-                        - task.dynamic_object.absolute_coordinates
-                    )
+                        15
+                        - abs(
+                    obj.absolute_coordinates
+                    - task.dynamic_object.absolute_coordinates
+                )
                 )
         return weight
 
@@ -73,6 +78,12 @@ class FieldProcessing:
         else:
             return 0
 
+    def weigh_task_type(self, task: GameTask) -> float:
+        if task.dynamic_object.object_name == "Scout":
+            return 0.1
+        else:
+            return 1
+
     def weight_probability(self, task: GameTask) -> float:
         return task.dynamic_object.probability
 
@@ -80,7 +91,7 @@ class FieldProcessing:
         velocity = math.sqrt(
             task.dynamic_object.velocity[0] ** 2 + task.dynamic_object.velocity[1] ** 2
         )
-        return 0.95**velocity
+        return 0.95 ** velocity
 
     def weight_previous_id(self, task: GameTask) -> float:
         if self.last_task is None:
@@ -98,15 +109,16 @@ class FieldProcessing:
         """
         for task in self.tasks:
             task.rating = (
-                self.weight_history(task)
-                * self.weight_velocity(task)
-                * self.weight_probability(task)
-                * self.weight_previous_id(task)
-                * self.weight_game_time(task)
-                * self.weight_object_proximity(task)
-                * self.weight_travel_time(task)
+                    self.weight_history(task)
+                    * self.weight_velocity(task)
+                    * self.weight_probability(task)
+                    * self.weight_previous_id(task)
+                    * self.weight_game_time(task)
+                    * self.weight_object_proximity(task)
+                    * self.weight_travel_time(task)
+                    * self.weigh_task_type(task)
             )
-        self.tasks = sorted(self.tasks, key=lambda x: x.rating)
+        self.tasks = sorted(self.tasks, key=lambda x: -x.rating)
 
     def generate_task(self) -> None:
         """
@@ -129,6 +141,9 @@ class FieldProcessing:
         """
         output = self.last_task.get_output(speed=GameField.robot_translational_speed)
         if self.last_task.is_done():
+            obj_name = self.last_task.dynamic_object.object_name
+            self.previous_successful_task_type = obj_name if (
+                        obj_name == "Red Robot" or obj_name == "Blue Robot") else self.previous_successful_task_type
             self.last_task = None
         return output
 
@@ -144,51 +159,52 @@ class FieldProcessing:
 
         dist_to_finish = total_dist
         step_counter = 1
-        tracked_points = [task.key_points[0]]
+        absolute_count = 0
+        tracked_points = [task.key_points[-2]]
         tracked_angular_changes = [None, None]
 
-        while dist_to_finish > resolution:
-            direction_unit_vector = (task.key_points[-1] - task.key_points[-2]) / abs(
-                task.key_points[-2] - task.key_points[-1]
-            )
+        while dist_to_finish > resolution and absolute_count < 100:
+            difference_vector = task.key_points[-1] - task.key_points[-2]
+            difference_magnitude = abs(difference_vector)
+            direction_unit_vector = difference_vector / difference_magnitude
             test_point = (
-                direction_unit_vector * resolution * float(step_counter)
-                + task.key_points[-1]
+                    direction_unit_vector * resolution * float(step_counter)
+                    + task.key_points[-2]
             )
+            tracked_points.append(test_point)
             for obj in obstructions:
                 if self.within_object(test_point, obj):
                     if isinstance(obj, DynamicObject):
-                        tracked_points.insert(
-                            0,
+                        tracked_points.pop()
+                        tracked_points.append(
                             obj.absolute_coordinates.push_away(
                                 test_point, obj.radius + self.game_field.robot.size
-                            )[0],
+                            )[0]
                         )
                     if isinstance(obj, Box):
-                        tracked_points.insert(
-                            0,
-                            obj.push_outside(test_point, self.game_field.robot.size)[0],
+                        tracked_points.pop()
+                        tracked_points.append(
+                            obj.push_outside(test_point, self.game_field.robot.size)[0]
                         )
                     break
-                tracked_points.append(test_point)
-                break
-            if step_counter > 3:
+            if step_counter >= 3:
                 tracked_angular_changes[0] = Translation.angle_between(
-                    tracked_points[-3] - task.key_points[0],
-                    tracked_points[-2] - task.key_points[0],
+                    tracked_points[-1] - task.key_points[-2],
+                    task.key_points[-1] - task.key_points[-2]
                 )
                 tracked_angular_changes[1] = Translation.angle_between(
-                    tracked_points[-2] - task.key_points[0],
-                    tracked_points[-1] - task.key_points[0],
+                    tracked_points[-2] - task.key_points[-2],
+                    task.key_points[-1] - task.key_points[-2]
                 )
-                if tracked_angular_changes[0] > 0 and tracked_angular_changes[1] < 0:
-                    task.key_points.insert(-1, tracked_points[-2])
+                if tracked_angular_changes[0] < tracked_angular_changes[1]:
+                    if abs(tracked_points[-2] - task.key_points[-2]) > resolution:
+                        task.key_points.insert(-1, tracked_points[-2])
                     tracked_points = [task.key_points[-2]]
                     tracked_angular_changes = [None, None]
                     step_counter = 0
             step_counter += 1
+            absolute_count += 1
             dist_to_finish = abs(tracked_points[-1] - task.key_points[-1])
-            print(dist_to_finish)
 
         x = np.array([point.x for point in task.key_points])
         y = np.array([point.y for point in task.key_points])
@@ -205,7 +221,7 @@ class FieldProcessing:
         """
         if isinstance(obj, DynamicObject):
             return abs(point - obj.absolute_coordinates) < (
-                obj.radius + self.game_field.robot.size
+                    obj.radius + self.game_field.robot.size
             )
         if isinstance(obj, Box):
             return obj.is_inside(point, -self.game_field.robot.size)
@@ -219,8 +235,8 @@ class FieldProcessing:
         obstructing_objects.extend(GameField.dead_zones)
         for item in self.game_field.objects:
             if (
-                item.object_name in ("Red Robot", "Blue Robot")
-                and item.probability > 0.5
+                    item.object_name in ("Red Robot", "Blue Robot")
+                    and item.probability > 0.5
             ):
                 obstructing_objects.append(item)
         return obstructing_objects

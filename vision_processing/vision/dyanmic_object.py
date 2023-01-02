@@ -11,7 +11,7 @@ class DynamicObject:
         timestamp: float,
         velocity: tuple[float, float] = (0, 0),
         absolute_coordinates: Translation = Translation(0, 0),
-        probability: float = 1,
+        probability: float = 1
     ):
         """
         Class to represent a moving object on a field
@@ -104,7 +104,7 @@ class DynamicObject:
         """
         if other:
             prediction = self.predict(when=other.timestamp)
-            position = (prediction + other.absolute_coordinates) / 2
+            position = (prediction * 0.6 + other.absolute_coordinates * 0.4)
 
             velocity = (position - self.absolute_coordinates) / (
                 other.timestamp - self.timestamp
@@ -122,6 +122,7 @@ class DynamicObject:
             time_diff = timestamp - self.timestamp
             probability_decay = GameField.prediction_decay**time_diff
 
+            self.timestamp = timestamp
             self.absolute_coordinates = prediction
             self.probability *= probability_decay
 
@@ -131,6 +132,4 @@ class DynamicObject:
         @param robot_pose: The current pose of the robot
         @return: null
         """
-        self.absolute_coordinates = self.relative_coordinates.relative_to_pose(
-            robot_pose
-        )
+        self.absolute_coordinates = self.relative_coordinates.relative_to_pose(robot_pose)
