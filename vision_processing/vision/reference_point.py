@@ -47,7 +47,7 @@ class ReferencePoint:
                 ).get_pose_relative_to_field(),
             )
             for detection in detections
-            if detection.decision_margin > 10
+            if detection.decision_margin > 10 and detection.tag_id in GameField.reference_points.keys()
         ]
         return reference_points
 
