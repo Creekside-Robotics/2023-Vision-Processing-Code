@@ -39,7 +39,7 @@ class Translation(NamedTuple):
         return Translation(x, y)
 
     def __sub__(self, other: "Translation") -> "Translation":
-        return -self + other
+        return self + -other
 
     def __mul__(self, other: float) -> "Translation":  # scaling
         return Translation(self.x * other, self.y * other)
@@ -151,6 +151,11 @@ class Pose:
         """
         Takes a list of poses and returns the average pose.
         """
+        if len(poses) == 0:
+            return cls(
+                Translation(0, 0),
+                0
+            )
         return cls(
             Translation(
                 statistics.mean([pose.translation.x for pose in poses]),
@@ -200,7 +205,7 @@ class Box:
         return Translation(x, y), change
 
     def push_outside(self, point: Translation, distance: float):
-        return self.center.push_away(point, distance)
+        return self.center.push_away(point, distance + self.radius)
 
 
 class _Counter:
