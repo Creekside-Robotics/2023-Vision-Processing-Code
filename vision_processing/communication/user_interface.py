@@ -30,7 +30,7 @@ class UserInterface:
             dynamic_object.absolute_coordinates
         )
         pixel_radius = self.field_length_to_pixel_length(dynamic_object.radius)
-        return cv2.circle(field, pixel_coordinates, 0, color_map.get(dynamic_object.object_name), thickness=-pixel_radius)
+        return cv2.circle(field, pixel_coordinates, 0, color_map.get(dynamic_object.object_name), thickness=pixel_radius*2)
 
     def draw_box(self, field, box: Box, color):
         return cv2.rectangle(
@@ -86,7 +86,7 @@ class UserInterface:
             Translation(math.cos(robot_pose.rot) * robot_radius, math.sin(robot_pose.rot) * robot_radius)
             + robot_pose.translation
         )
-        field = cv2.circle(field, center, 0, (0, 255, 0), thickness=self.field_length_to_pixel_length(robot_radius))
+        field = cv2.circle(field, center, 0, (0, 255, 0), thickness=self.field_length_to_pixel_length(robot_radius)*2)
         field = cv2.line(field, center, direction_endpoint, (0, 0, 0), 5)
         return field
 
@@ -99,7 +99,7 @@ class UserInterface:
     def add_game_time(self, field):
         time = self.field_processing.game_field.game_time
         field = cv2.rectangle(field, (0, 0), (100, 50), (0, 0, 0), thickness=-1)
-        field = cv2.putText(field, f"Time Remaining: {int(time)}", (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 20, (255, 255, 255), 2)
+        field = cv2.putText(field, f"{int(time)}", (5, 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         return field
 
 
