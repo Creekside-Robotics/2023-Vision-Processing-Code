@@ -1,6 +1,6 @@
 import time
-import cv2
 import math
+import cv2
 
 import vision_processing
 import testing
@@ -9,8 +9,8 @@ import testing
 cameras = [
     vision_processing.Camera(
         (0.106, 0, 0.6606),
-        (0, -math.pi / 6),
-        636,
+        (0, -math.pi / 8),
+        600,
         "testing/testing_resources/HyperClock Test Video.mp4"
     )
 ]
@@ -18,6 +18,8 @@ object_detection = vision_processing.DynamicObjectProcessing()
 
 communications = testing.TestNetworkCommunication()
 image_communications = testing.TestImageCommunications("HyperClock UI")
+fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+writer = cv2.VideoWriter('testing/testing_resources/HyperClock Output Video.mp4', fourcc, 30, (350, 500))
 robot = vision_processing.Robot()
 
 field = vision_processing.DynamicField(robot, communications)
@@ -31,11 +33,12 @@ while True:
 
     # Processing frames
     for camera in cameras:
+        camera.update_frame()
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
         reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
     # Updating field
-    field.update_field(timestamp, reference_points, dynamic_objects)
+    field.update_field(cameras[0].frame_time, reference_points, dynamic_objects)
 
     # Processing field and getting output
     field_processor.process_field()
@@ -47,9 +50,8 @@ while True:
     # Generating and sending user interface
     interface_frame = user_interface.generate_field()
     image_communications.put_frame(interface_frame)
+    writer.write(interface_frame)
 
     # Printing FPS
     fps = 1 / (time.time() - timestamp)
     print(f"Cycle was successful.\nFPS: {round(fps, 3)}")
-
-    cv2.waitKey(0)

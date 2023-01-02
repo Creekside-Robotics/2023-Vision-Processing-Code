@@ -3,7 +3,7 @@ import time
 import vision_processing
 
 
-cameras = [vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras]
+cameras = vision_processing.GameField.cameras
 object_detection = vision_processing.DynamicObjectProcessing()
 
 communications = vision_processing.NetworkCommunication()
@@ -21,11 +21,12 @@ while True:
 
     # Processing frames
     for camera in cameras:
+        camera.update_frame()
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
         reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
     # Updating field
-    field.update_field(timestamp, reference_points, dynamic_objects)
+    field.update_field(cameras[0].frame_time, reference_points, dynamic_objects)
 
     # Processing field and getting output
     field_processor.process_field()
