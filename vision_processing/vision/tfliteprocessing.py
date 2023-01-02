@@ -94,7 +94,7 @@ class DynamicObjectProcessing:
         # output
         boxes, class_ids, scores, x_scale, y_scale = self.get_output(scale)
         for i in range(len(boxes)):
-            if scores[i] > 0.4:
+            if scores[i] > 0.5 or (self.labels[int(class_ids[i])] == "Ball" and scores[i] > 0.25):
 
                 class_id = class_ids[i]
                 if np.isnan(class_id):
