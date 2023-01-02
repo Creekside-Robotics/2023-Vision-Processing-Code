@@ -32,7 +32,7 @@ class TestNetworkCommunication(NetworkCommunication):
         Gets the mode input by the driver
         @return: String describing mode two options are "Manual" or "Auto"
         """
-        return "Manual"
+        return "Auto"
 
     def set_robot_output(self, kinematics: tuple[float, float, float]) -> None:
         """
@@ -53,4 +53,4 @@ class TestNetworkCommunication(NetworkCommunication):
         Gets the current time of the game.
         @return: Current time into match (seconds), this value will be counting up
         """
-        return time.time() - self.end_time
+        return self.end_time - time.time()
