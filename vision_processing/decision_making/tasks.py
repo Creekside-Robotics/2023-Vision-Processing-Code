@@ -155,6 +155,7 @@ class GameTask:
         self, speed: float = 1, foresight: float = 0.5
     ) -> tuple[float, float, float]:
         """
+        Returns the output of the task.
         @param speed: Speed of robot
         @param foresight: Distance ahead that robot is moving to
         @return: kinematic tuple (xVel, yVel, rotVel)

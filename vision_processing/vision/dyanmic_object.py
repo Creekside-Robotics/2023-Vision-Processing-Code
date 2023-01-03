@@ -1,3 +1,5 @@
+import math
+
 from ..constants import GameField
 from ..utils import Pose, Translation, dynamic_object_counter
 
@@ -9,7 +11,7 @@ class DynamicObject:
         radius: float,
         object_name,
         timestamp: float,
-        velocity: tuple[float, float] = (0, 0),
+        velocity: Translation = Translation(0, 0),
         absolute_coordinates: Translation = Translation(0, 0),
         probability: float = 1
     ):
@@ -36,6 +38,8 @@ class DynamicObject:
 
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
+        self.velocity_decay = 0.8
+        self.frame_influence_factor = 0.7
 
     @classmethod
     def from_list(cls, parameter_list: tuple) -> 'DynamicObject':
@@ -86,10 +90,11 @@ class DynamicObject:
 
         _step = delay or (when - self.timestamp)
 
-        return Translation(
-            self.absolute_coordinates.x + self.velocity[0] * _step,
-            self.absolute_coordinates.y + self.velocity[1] * _step,
-        )
+        positional_change_factor = (self.velocity_decay**_step / math.log(self.velocity_decay, math.e)) - (1 / math.log(self.velocity_decay, math.e))
+        positional_change = self.velocity * positional_change_factor
+
+        return self.absolute_coordinates + positional_change
+
 
     def update(
         self, other: "DynamicObject | None" = None, timestamp: float | None = None
@@ -104,13 +109,13 @@ class DynamicObject:
         """
         if other:
             prediction = self.predict(when=other.timestamp)
-            position = (prediction * 0.6 + other.absolute_coordinates * 0.4)
+            position = (prediction + other.absolute_coordinates) / 2
 
-            velocity = (position - self.absolute_coordinates) / (
+            new_velocity = (position - self.absolute_coordinates) / (
                 other.timestamp - self.timestamp
             )
 
-            self.velocity = velocity
+            self.update_velocity(other.timestamp - self.timestamp, new_velocity)
             self.absolute_coordinates = position
             self.timestamp = other.timestamp
 
@@ -123,12 +128,17 @@ class DynamicObject:
             probability_decay = GameField.prediction_decay**time_diff
 
             self.timestamp = timestamp
+            self.velocity *= self.velocity_decay**time_diff
             self.absolute_coordinates = prediction
             self.probability *= probability_decay
 
+    def update_velocity(self, time_diff: float, new_velocity: Translation = Translation(0, 0)):
+        update_influence = 1 - (1 - self.frame_influence_factor)**time_diff
+        self.velocity = self.velocity * (1 - update_influence) + new_velocity * update_influence
+
     def add_absolute_coordinates(self, robot_pose: Pose) -> None:
         """
-        Adds the absolute corrdinates to DynamicObject
+        Adds the absolute coordinates to DynamicObject
         @param robot_pose: The current pose of the robot
         @return: null
         """
