@@ -39,7 +39,8 @@ class DynamicObject:
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
         self.velocity_decay = 0.8
-        self.frame_influence_factor = 0.7
+        self.velocity_frame_influence_factor = 0.7
+        self.position_frame_influence_factor = 0.95
 
     @classmethod
     def from_list(cls, parameter_list: tuple) -> 'DynamicObject':
@@ -109,14 +110,13 @@ class DynamicObject:
         """
         if other:
             prediction = self.predict(when=other.timestamp)
-            position = (prediction + other.absolute_coordinates) / 2
-
-            new_velocity = (position - self.absolute_coordinates) / (
+            new_velocity = (prediction - self.absolute_coordinates) / (
                 other.timestamp - self.timestamp
             )
 
             self.update_velocity(other.timestamp - self.timestamp, new_velocity)
-            self.absolute_coordinates = position
+            self.update_position(other.timestamp - self.timestamp, prediction)
+
             self.timestamp = other.timestamp
 
             self.probability = 1
@@ -133,8 +133,12 @@ class DynamicObject:
             self.probability *= probability_decay
 
     def update_velocity(self, time_diff: float, new_velocity: Translation = Translation(0, 0)):
-        update_influence = 1 - (1 - self.frame_influence_factor)**time_diff
+        update_influence = 1 - (1 - self.velocity_frame_influence_factor)**time_diff
         self.velocity = self.velocity * (1 - update_influence) + new_velocity * update_influence
+
+    def update_position(self, time_diff: float, new_position: Translation):
+        update_influence = 1 - (1 - self.position_frame_influence_factor) ** time_diff
+        self.absolute_coordinates = self.absolute_coordinates * (1 - update_influence) + new_position * update_influence
 
     def add_absolute_coordinates(self, robot_pose: Pose) -> None:
         """
