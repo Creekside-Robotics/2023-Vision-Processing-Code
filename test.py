@@ -9,8 +9,8 @@ import testing
 cameras = [
     vision_processing.Camera(
         (0.106, 0, 0.6606),
-        (0, -math.pi / 8),
-        600,
+        (0, -math.pi / 7.5),
+        650,
         "testing/testing_resources/HyperClock Test Video.mp4"
     )
 ]

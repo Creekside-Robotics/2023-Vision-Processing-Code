@@ -39,8 +39,8 @@ class DynamicObject:
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
         self.velocity_decay = 0.8
-        self.velocity_frame_influence_factor = 0.7
-        self.position_frame_influence_factor = 0.95
+        self.velocity_frame_influence_factor = 0.9
+        self.position_frame_influence_factor = 0.99999
 
     @classmethod
     def from_list(cls, parameter_list: tuple) -> 'DynamicObject':

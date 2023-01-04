@@ -18,7 +18,7 @@ class GameField:
     apriltag_size = 0.1224
     apriltag_family = "tag16h5"
 
-    prediction_decay = 0.7
+    prediction_decay = 0.6
     robot_radius = 0.5
     robot_translational_speed = 1
     robot_angular_speed = math.pi

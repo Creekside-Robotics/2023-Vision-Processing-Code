@@ -67,7 +67,7 @@ class DynamicField:
             obj.add_absolute_coordinates(self.robot.pose)
 
         for obj in self.objects:
-            min_dist = 0.2
+            min_dist = 0.3
             update_index = -1
             for i, new_obj in enumerate(new_objects):
                 distance = abs(
@@ -95,7 +95,7 @@ class DynamicField:
         for i in reversed(range(len(self.objects))):
             delete = False
 
-            if self.objects[i].probability < 0.1:
+            if self.objects[i].probability < 0.25:
                 delete = True
             if not GameField.field_boundary.is_inside(
                 self.objects[i].absolute_coordinates
