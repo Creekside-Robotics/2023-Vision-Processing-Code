@@ -39,8 +39,8 @@ class DynamicObject:
         self.id = dynamic_object_counter.next()
         self.timestamp = timestamp
         self.velocity_decay = 0.8
-        self.velocity_frame_influence_factor = 0.9
-        self.position_frame_influence_factor = 0.99999
+        self.velocity_frame_influence_factor = 0.8
+        self.position_frame_influence_factor = 0.9
 
     @classmethod
     def from_list(cls, parameter_list: tuple) -> 'DynamicObject':
@@ -110,7 +110,7 @@ class DynamicObject:
         """
         if other:
             prediction = self.predict(when=other.timestamp)
-            new_velocity = (prediction - self.absolute_coordinates) / (
+            new_velocity = (other.absolute_coordinates - self.absolute_coordinates) / (
                 other.timestamp - self.timestamp
             )
 
