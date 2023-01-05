@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
-import tensorflow as tf
+import tflite_runtime as tf
 
 from ..utils import Pixel, Translation
 from .dyanmic_object import DynamicObject
@@ -58,17 +58,17 @@ class DynamicObjectProcessing:
         print("Initializing TFLite runtime interpreter")
         try:
             model_path = "vision_processing/vision/tensorflow_resources/model.tflite"
-            self.interpreter = tf.lite.Interpreter(
+            self.interpreter = tf.Interpreter(
                 model_path,
                 experimental_delegates=[
-                    tf.lite.experimental.load_delegate("libedgetpu.so.1")
+                    tf.load_delegate("libedgetpu.so.1")
                 ],
             )
             self.hardware_type = "Coral Edge TPU"
         except:
             print("Failed to create Interpreter with Coral, switching to unoptimized")
             model_path = "vision_processing/vision/tensorflow_resources/unoptimized.tflite"
-            self.interpreter = tf.lite.Interpreter(model_path)
+            self.interpreter = tf.Interpreter(model_path)
             self.hardware_type = "Unoptimized"
 
         self.interpreter.allocate_tensors()
