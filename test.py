@@ -49,7 +49,6 @@ while True:
 
     # Generating and sending user interface
     interface_frame = user_interface.generate_field()
-    image_communications.put_frame(interface_frame)
     writer.write(interface_frame)
 
     # Printing FPS
