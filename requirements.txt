@@ -4,3 +4,4 @@ pyapriltags
 pynetworktables
 numpy
 tflite-runtime
+robotpy-cscore
