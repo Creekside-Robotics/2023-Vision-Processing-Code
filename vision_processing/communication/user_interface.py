@@ -2,6 +2,7 @@ import math
 
 import cv2
 import numpy as np
+from typing import Tuple
 
 from ..vision import DynamicObject
 from ..constants import GameField
@@ -14,7 +15,7 @@ class UserInterface:
         self.field_processing = field_processing
         self.conversion_ratio = 350 / self.field_processing.game_field.field_boundary.upper_limit.y
 
-    def translation_to_pixel_coordinates(self, translation: Translation) -> tuple[int, int]:
+    def translation_to_pixel_coordinates(self, translation: Translation) -> Tuple[int, int]:
         return 350 - self.field_length_to_pixel_length(translation.y), 500 - self.field_length_to_pixel_length(translation.x)
 
     def field_length_to_pixel_length(self, length: float) -> int:

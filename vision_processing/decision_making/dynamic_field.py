@@ -1,3 +1,5 @@
+from typing import List
+
 from ..communication import NetworkCommunication
 from ..constants import GameField
 from ..vision import DynamicObject, ReferencePoint, Robot
@@ -17,11 +19,11 @@ class DynamicField:
         self.robot = robot
         self.field_boundary = GameField.field_boundary
         self.obstructions = GameField.dead_zones
-        self.objects: list[DynamicObject] = []
+        self.objects: List[DynamicObject] = []
         self.game_time = 0
         self.communications = communications
 
-    def sync_with_robot(self, april_tag_data: list[ReferencePoint]) -> None:
+    def sync_with_robot(self, april_tag_data: List[ReferencePoint]) -> None:
         """
         Syncs all relevant data with the robot
         @param april_tag_data: List of reference points given by apriltags to be merged with pose
@@ -41,8 +43,8 @@ class DynamicField:
     def update_field(
         self,
         timestamp: float,
-        april_tag_data: list[ReferencePoint],
-        dynamic_objects: list[DynamicObject],
+        april_tag_data: List[ReferencePoint],
+        dynamic_objects: List[DynamicObject],
     ) -> None:
         """
         Class to update the field, communicates with robot and updates objects on field
@@ -55,7 +57,7 @@ class DynamicField:
         self.update_objects(dynamic_objects, timestamp)
 
     def update_objects(
-        self, new_objects: list[DynamicObject], timestamp: float
+        self, new_objects: List[DynamicObject], timestamp: float
     ) -> None:
         """
         Updates all objects on the field

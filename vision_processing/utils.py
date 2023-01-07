@@ -1,6 +1,6 @@
 import math
 import statistics
-from typing import NamedTuple
+from typing import NamedTuple, List
 from scipy import spatial
 
 
@@ -134,7 +134,7 @@ class Pose:
         return Pose(Translation(x, y), rot)
 
     @staticmethod
-    def average_angles(angles: list[float]) -> float:
+    def average_angles(angles: List[float]) -> float:
         """
         Returns the average of a list of angles
         """
@@ -147,7 +147,7 @@ class Pose:
         return math.atan2(y, x)
 
     @classmethod
-    def average_poses(cls, poses: list["Pose"]) -> "Pose":
+    def average_poses(cls, poses: List["Pose"]) -> "Pose":
         """
         Takes a list of poses and returns the average pose.
         """

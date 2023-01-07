@@ -1,4 +1,5 @@
 import networktables
+from typing import Tuple, List
 
 from vision_processing import ReferencePoint
 
@@ -18,7 +19,7 @@ class NetworkCommunication:
         self.robot_output_table = self.ntinst.getTable("Robot Output")
         self.game_data_table = self.ntinst.getTable("Game Data")
 
-    def set_apriltag_pose_data(self, apriltag_array: list[ReferencePoint]) -> None:
+    def set_apriltag_pose_data(self, apriltag_array: List[ReferencePoint]) -> None:
         """
         Sends pose data from a list of reference points over networktables
         @param apriltag_array: List of apriltag reference points
@@ -28,7 +29,7 @@ class NetworkCommunication:
             (average_pose.translation.x, average_pose.translation.y, average_pose.rot)
         )
 
-    def get_kinematics(self) -> tuple[float, float, float]:
+    def get_kinematics(self) -> Tuple[float, float, float]:
         """
         Gets current kinematics from robot
         @return: Kinematics from robot [xVelocity, yVelocity, rotVelocity]
@@ -52,7 +53,7 @@ class NetworkCommunication:
         """
         return self.robot_output_table.getEntry("Mode").getString("Manual")
 
-    def set_robot_output(self, kinematics: tuple[float, float, float]) -> None:
+    def set_robot_output(self, kinematics: Tuple[float, float, float]) -> None:
         """
         Sets the output of the robot
         @param kinematics: A tuple representing robot movement [xVelocity, yVelocity, rotVelocity]

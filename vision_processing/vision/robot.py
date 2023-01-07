@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from ..constants import GameField
 from ..utils import Pose, Translation
 
@@ -12,7 +14,7 @@ class Robot:
     def __init__(
         self,
         pose: Pose = Pose(Translation(0, 0), 0),
-        velocity: tuple[float, float] = (0, 0),
+        velocity: Tuple[float, float] = (0, 0),
         angular_velocity: float = 0,
     ):
         self.pose = pose

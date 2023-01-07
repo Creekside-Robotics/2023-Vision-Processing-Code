@@ -3,6 +3,7 @@ from time import time
 
 import cv2
 import numpy as np
+from typing import Tuple
 
 from ..utils import Pixel, Translation
 
@@ -10,8 +11,8 @@ from ..utils import Pixel, Translation
 class Camera:
     def __init__(
         self,
-        translational_offset: tuple[float, float, float],
-        rotational_offset: tuple[float, float],
+        translational_offset: Tuple[float, float, float],
+        rotational_offset: Tuple[float, float],
         focal_length: float,
         port_id,
     ):
@@ -25,8 +26,8 @@ class Camera:
         :type port_id: Any
         """
         self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
-        self.translational_offset: tuple[float, float, float] = translational_offset
-        self.rotational_offset: tuple[float, float] = rotational_offset
+        self.translational_offset: Tuple[float, float, float] = translational_offset
+        self.rotational_offset: Tuple[float, float] = rotational_offset
         self.frame: np.ndarray = self.input_feed.read()[1]
         self.center: Pixel = Pixel(self.frame.shape[1] // 2, self.frame.shape[0] // 2)
         self.frame_time = time()
@@ -60,7 +61,7 @@ class Camera:
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
-    ) -> tuple[Translation[float, float], float]:
+    ) -> Tuple[Translation[float, float], float]:
         """
         :param bbox_left: tuple of length two, bottom left pixel coordinate of bounding box
         :type bbox_left: Pixel
@@ -92,7 +93,7 @@ class Camera:
 
     def grounded_point_translation(
         self, pixel_coordinates: Pixel
-    ) -> tuple[float, float]:
+    ) -> Tuple[float, float]:
         """
         Translates pixel coordinates into robot relative cartesian coordinates.
         :param pixel_coordinates: Takes a tuple of length 2, x and y in pixel coordinate system.

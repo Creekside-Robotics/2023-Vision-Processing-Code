@@ -1,5 +1,7 @@
 import time
 
+from typing import Tuple, List
+
 from vision_processing import NetworkCommunication, ReferencePoint, Pose
 
 
@@ -9,11 +11,11 @@ class TestNetworkCommunication(NetworkCommunication):
         self.pose = None
         self.end_time = time.time() + 150
 
-    def set_apriltag_pose_data(self, apriltag_array: list[ReferencePoint]) -> None:
+    def set_apriltag_pose_data(self, apriltag_array: List[ReferencePoint]) -> None:
         average_pose = Pose.average_poses([tag.robot_pose for tag in apriltag_array])
         self.pose = average_pose
 
-    def get_kinematics(self) -> tuple[float, float, float]:
+    def get_kinematics(self) -> Tuple[float, float, float]:
         """
         Gets current kinematics from robot
         @return: Kinematics from robot [xVelocity, yVelocity, rotVelocity]
@@ -34,7 +36,7 @@ class TestNetworkCommunication(NetworkCommunication):
         """
         return "Auto"
 
-    def set_robot_output(self, kinematics: tuple[float, float, float]) -> None:
+    def set_robot_output(self, kinematics: Tuple[float, float, float]) -> None:
         """
         Sets the output of the robot
         @param kinematics: A tuple representing robot movement [xVelocity, yVelocity, rotVelocity]

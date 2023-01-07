@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 from scipy import interpolate
+from typing import Tuple, List
 
 from ..vision import DynamicObject, Robot
 from ..utils import Translation
@@ -23,9 +24,9 @@ class GameTask:
         ]
         self.key_dist: np.ndarray = np.array([])
         self.done_before = False
-        self.spline_points: list[Translation] = []
-        self.spline_rot: list[float] = []
-        self.spline_dist: list[float] = []
+        self.spline_points: List[Translation] = []
+        self.spline_rot: List[float] = []
+        self.spline_dist: List[float] = []
         self.rating = 0
 
     @property
@@ -153,7 +154,7 @@ class GameTask:
 
     def get_output(
         self, speed: float = 1, foresight: float = 0.5
-    ) -> tuple[float, float, float]:
+    ) -> Tuple[float, float, float]:
         """
         Returns the output of the task.
         @param speed: Speed of robot
