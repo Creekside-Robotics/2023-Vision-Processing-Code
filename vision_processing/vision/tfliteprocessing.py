@@ -158,13 +158,13 @@ class DynamicObjectProcessing:
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
 
         # Get all outputs from the model
-        boxes = self.output_tensor(0)
+        boxes = self.output_tensor(1)
         print(boxes)
-        classes = self.output_tensor(1)
+        classes = self.output_tensor(3)
         print(classes)
-        scores = self.output_tensor(2)
+        scores = self.output_tensor(0)
         print(scores)
-        count = int(self.output_tensor(3))
+        count = int(self.output_tensor(2))
 
         width, height = self.input_size()
         image_scale_x, image_scale_y = scale
