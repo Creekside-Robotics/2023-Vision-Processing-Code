@@ -66,6 +66,7 @@ class DetectionPoseInterpretation:
         cartesian_coordinates, theta, phi = self.offset_pose_relative_to_robot(
             polar_coordinates, theta, phi
         )
+        print(cartesian_coordinates)
         return Pose(
             Translation(cartesian_coordinates[0], cartesian_coordinates[1]), theta
         )
@@ -78,6 +79,7 @@ class DetectionPoseInterpretation:
             -self.detection.pose_t[1],
         )
         theta, phi, zeta = DetectionPoseInterpretation.angles_from_rotational_matrix(self.detection.pose_R)
+        print([x, y, z, theta, phi, zeta])
         return x, y, z, theta, phi
 
     @staticmethod
