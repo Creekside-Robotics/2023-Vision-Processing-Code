@@ -159,8 +159,11 @@ class DynamicObjectProcessing:
 
         # Get all outputs from the model
         boxes = self.output_tensor(0)
+        print(boxes)
         classes = self.output_tensor(1)
+        print(classes)
         scores = self.output_tensor(2)
+        print(scores)
         count = int(self.output_tensor(3))
 
         width, height = self.input_size()
