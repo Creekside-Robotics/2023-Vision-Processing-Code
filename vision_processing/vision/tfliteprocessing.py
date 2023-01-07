@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
-import tflite_runtime.interpreter as tf
+import tflite_runtime as tf
 
 from ..utils import Pixel, Translation
 from .dyanmic_object import DynamicObject
@@ -56,7 +56,6 @@ class BBox(collections.namedtuple("BBox", ["xmin", "ymin", "xmax", "ymax"])):
 
 class DynamicObjectProcessing:
     def __init__(self):
-        self.input_img = None
         print("Initializing TFLite runtime interpreter")
         try:
             model_path = "vision_processing/vision/tensorflow_resources/model.tflite"
@@ -96,7 +95,7 @@ class DynamicObjectProcessing:
         # output
         boxes, class_ids, scores, x_scale, y_scale = self.get_output(scale)
         for i in range(len(boxes)):
-            if scores[i] > 0.2 or (self.labels[int(class_ids[i])] == "Ball" and scores[i] > 0.1):
+            if scores[i] > 0.5 or (self.labels[int(class_ids[i])] == "Ball" and scores[i] > 0.25):
 
                 class_id = class_ids[i]
                 if np.isnan(class_id):
@@ -145,7 +144,8 @@ class DynamicObjectProcessing:
         """
         width, height = self.input_size()
         h, w, _ = frame.shape
-        self.input_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
+        new_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
+        self.interpreter.set_tensor(self.interpreter.get_input_details()[0]['index'], np.copy(new_img))
         return width / w, height / h
 
     def output_tensor(self, i):
