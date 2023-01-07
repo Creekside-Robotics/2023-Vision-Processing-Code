@@ -61,7 +61,7 @@ class Camera:
 
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
-    ) -> Tuple[Translation[float, float], float]:
+    ) -> Tuple[Translation, float]:
         """
         :param bbox_left: tuple of length two, bottom left pixel coordinate of bounding box
         :type bbox_left: Pixel
