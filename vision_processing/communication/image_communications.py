@@ -9,6 +9,7 @@ class ImageCommunications:
         @param width: Width of camera stream, defaults to 1920
         @param height: Height of the camera stream, defaults to 1080
         """
+        CameraServer.startAutomaticCapture()
         self.source: CvSource = CameraServer.putVideo(name, width, height)
 
     def put_frame(self, frame):
