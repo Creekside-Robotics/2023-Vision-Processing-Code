@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
-import tflite_runtime as tf
+import tflite_runtime.interpreter as tf
 
 from ..utils import Pixel, Translation
 from .dyanmic_object import DynamicObject
