@@ -148,24 +148,20 @@ class DynamicObjectProcessing:
         self.input_img = np.reshape(cv2.resize(frame, (320, 320)), (1, 320, 320, 3))
         return width / w, height / h
 
-    def output_tensor(self) -> np.ndarray:
+    def output_tensor(self, i):
         """Returns output tensor view."""
-        signature_fn = self.interpreter.get_signature_runner()
-
-        # Feed the input image to the model
-        return signature_fn(images=self.input_img)
-
+        tensor = self.interpreter.tensor(self.interpreter.get_output_details()[i]['index'])()
+        return np.squeeze(tensor)
 
     def get_output(
         self, scale: tuple[float, float]
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, float]:
-        output = self.output_tensor()
 
         # Get all outputs from the model
-        # count = int(np.squeeze(output['output_0']))
-        scores = np.squeeze(output['output_1'])
-        classes = np.squeeze(output['output_2'])
-        boxes = np.squeeze(output['output_3'])
+        boxes = self.output_tensor(0)
+        classes = self.output_tensor(1)
+        scores = self.output_tensor(2)
+        count = int(self.output_tensor(3))
 
         width, height = self.input_size()
         image_scale_x, image_scale_y = scale
