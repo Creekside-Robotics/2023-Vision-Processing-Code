@@ -4,7 +4,7 @@ import math
 
 import cv2
 import numpy
-import dt_apritags as pyapriltags
+import dt_apriltags as pyapriltags
 
 from ..constants import GameField
 from ..utils import Pose, Translation
