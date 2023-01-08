@@ -1,5 +1,5 @@
-# FRC 8775 Robotics - Vision + Decision Making
-This repository maintains our robot's vision and decision making code designed to power autonmous capability on our robot.
+# FRC 8775 Robotics - 2023-Vision-Processing-Code
+This repository maintains our robot's vision and decision making code designed to power autonmous capability on our robot during the 2023 season.
 
 ## Goals
  - [x] Dynamic Object detection with Mobilenet2 
