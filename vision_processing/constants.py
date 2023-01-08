@@ -62,6 +62,6 @@ class GameField:
     }
 
     cameras = [
-        ((0.106, 0, 0.6606), (-math.pi / 6, 0), 636, "/dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._NexiGo_HD_Webcam_SN0001-video-index0"),
-        ((-0.106, 0, 0.6606), (-math.pi / 6, math.pi), 734, "usb-Microsoft_Microsoft®_LifeCam_HD-3000-video-index0"),
+        ((0.106, 0, 0.6606), (-math.pi / 6, 0), 636, 0),
+        # ((-0.106, 0, 0.6606), (-math.pi / 6, math.pi), 734, 0),
     ]
