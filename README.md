@@ -13,14 +13,16 @@ This repository maintains our robot's vision and decision making code designed t
 ## Necessary Software
 There is some software that you will need to work on the project.
 
-- Install the latest version of python [here](https://www.python.org/)
+- Install the python>=3.7 [here](https://www.python.org/). Be sure that the code is compatible with python==3.7.
 - Install tensorflow using the following command `pip3 install tensorflow`
 - Install opencv using the following command `pip3 install opencv-python`
 - Install numpy using the following command `pip3 install numpy`
 - Install pynetworktables using the following command `pip3 install pynetworktables`
-- Install pyapriltags using the following command `pip3 install pyapriltags`
+- Install dt-apriltags using the following command `pip3 install dt-apriltags`
 - Install robotpy-cscore using the following command `python -m pip install --pre robotpy-cscore`
 - Install scipy using the following command `pip3 install scipy`
+
+Instead of tensorflow, the program uses tflite-runtime. This library cannot be installed on a windows machine. If you are testing, change `import tflite_runtime.interpreter ...` to `import tensorflow.lite ...` in tflite_processing.py.
 
 ## Documentation for WPILIB and other libraries
 Documentation for of the important libraries used in this project.
