@@ -3,7 +3,7 @@ import time
 import vision_processing
 
 
-cameras = vision_processing.GameField.cameras
+cameras = [vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras]
 object_detection = vision_processing.DynamicObjectProcessing()
 
 communications = vision_processing.NetworkCommunication()
