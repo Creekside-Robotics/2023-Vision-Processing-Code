@@ -1,7 +1,8 @@
 scipy
 opencv-python
-pyapriltags
+dt-apriltags
 pynetworktables
 numpy
 tflite-runtime
+tensorflow
 robotpy-cscore
