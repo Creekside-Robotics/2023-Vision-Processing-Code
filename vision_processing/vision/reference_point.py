@@ -4,7 +4,11 @@ import math
 
 import cv2
 import numpy
-import dt_apriltags as pyapriltags
+
+try:
+    import dt_apriltags.apriltags as apriltags
+except ImportError:
+    import pyapriltags as apriltags
 
 from ..constants import GameField
 from ..utils import Pose, Translation
@@ -23,7 +27,7 @@ class ReferencePoint:
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
         """
-        detector = pyapriltags.apriltags.Detector(GameField.apriltag_family)
+        detector = apriltags.Detector(GameField.apriltag_family)
         image = cv2.cvtColor(camera.frame, cv2.COLOR_BGR2GRAY)
 
         # noinspection PyTypeChecker
