@@ -18,11 +18,8 @@ There is some software that you will need to work on the project.
 - Install opencv using the following command `pip3 install opencv-python`
 - Install numpy using the following command `pip3 install numpy`
 - Install pynetworktables using the following command `pip3 install pynetworktables`
-- Install dt-apriltags using the following command `pip3 install dt-apriltags`
 - Install robotpy-cscore using the following command `python -m pip install --pre robotpy-cscore`
 - Install scipy using the following command `pip3 install scipy`
-
-Instead of tensorflow, the program uses tflite-runtime. This library cannot be installed on a windows machine. If you are testing, change `import tflite_runtime.interpreter ...` to `import tensorflow.lite ...` in tflite_processing.py.
 
 ## Documentation for WPILIB and other libraries
 Documentation for of the important libraries used in this project.
