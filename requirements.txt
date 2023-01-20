@@ -1,7 +1,6 @@
 scipy
 opencv-python
-dt-apriltags
 pynetworktables
+pyapriltags
 numpy
 tensorflow
-robotpy-cscore
