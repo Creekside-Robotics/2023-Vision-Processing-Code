@@ -1,9 +1,7 @@
 import networktables
-from typing import Tuple, List
 
-from vision_processing import ReferencePoint
-
-from ..utils import Pose, Translation
+from ..utils import Pose, _Counter
+from ..vision.dyanmic_object import DynamicObject
 
 
 class NetworkCommunication:
@@ -15,61 +13,18 @@ class NetworkCommunication:
         self.ntinst = networktables.NetworkTablesInstance.getDefault()
         self.ntinst.startClientTeam(8775)
         self.ntinst.startDSClient()
-        self.robot_data_table = self.ntinst.getTable("Robot Data")
-        self.robot_output_table = self.ntinst.getTable("Robot Output")
-        self.game_data_table = self.ntinst.getTable("Game Data")
+        self.objects_table = self.ntinst.getTable("Objects")
+        self.pose_table = self.ntinst.getTable("Pose")
+        self._counter = _Counter(0)
 
-    def set_apriltag_pose_data(self, apriltag_array: List[ReferencePoint]) -> None:
-        """
-        Sends pose data from a list of reference points over networktables
-        @param apriltag_array: List of apriltag reference points
-        """
-        average_pose = Pose.average_poses([tag.robot_pose for tag in apriltag_array])
-        self.robot_data_table.getEntry("AprilTag Pose").setDoubleArray(
-            (average_pose.translation.x, average_pose.translation.y, average_pose.rot)
-        )
+    def send_object(self, obj: DynamicObject):
+        self.objects_table.putNumber("Name", obj.object_name)
+        self.objects_table.putNumber("xPos", obj.absolute_coordinates[0])
+        self.objects_table.putNumber("yPos", obj.absolute_coordinates[1])
+        self.objects_table.putNumber("counter", self._counter.next())
 
-    def get_kinematics(self) -> Tuple[float, float, float]:
-        """
-        Gets current kinematics from robot
-        @return: Kinematics from robot [xVelocity, yVelocity, rotVelocity]
-        """
-        return self.robot_data_table.getEntry("Kinematics").getDoubleArray((0, 0, 0))
-
-    def get_pose(self) -> Pose:
-        """
-        Gets the calculated pose of the robot
-        @return: Pose of robot
-        """
-        pose_tuple = self.robot_data_table.getEntry("Fused Pose").getDoubleArray(
-            (0, 0, 0)
-        )
-        return Pose(Translation(pose_tuple[0], pose_tuple[1]), pose_tuple[2])
-
-    def get_robot_mode(self) -> str:
-        """
-        Gets the mode input by the driver
-        @return: String describing mode two options are "Manual" or "Auto"
-        """
-        return self.robot_output_table.getEntry("Mode").getString("Manual")
-
-    def set_robot_output(self, kinematics: Tuple[float, float, float]) -> None:
-        """
-        Sets the output of the robot
-        @param kinematics: A tuple representing robot movement [xVelocity, yVelocity, rotVelocity]
-        """
-        self.robot_output_table.getEntry("Output").setDoubleArray(kinematics)
-
-    def get_team_color(self) -> str:
-        """
-        Gets the team color of the robot
-        @return: Team color: "Red" or "Blue", the default will be red
-        """
-        return self.game_data_table.getEntry("Team Color").getString("Red")
-
-    def get_game_time(self) -> float:
-        """
-        Gets the current time of the game.
-        @return: Current time into match (seconds), this value will be counting up
-        """
-        return self.game_data_table.getEntry("Game Time").getDouble(0)
+    def send_pose(self, pose: Pose):
+        self.pose_table.putNumber("xPos", pose.x)
+        self.pose_table.putNumber("yPos", pose.y)
+        self.pose_table.putNumber("rPos", pose.rot)
+        self.pose_table.putNumber("Count", self._counter.next())
