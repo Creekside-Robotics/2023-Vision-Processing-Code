@@ -1,6 +1,5 @@
 import time
 import math
-import cv2
 
 import vision_processing
 import testing
@@ -20,14 +19,19 @@ communications = testing.TestNetworkCommunication()
 
 while True:
     dynamic_objects = []
-    reference_points = []
     timestamp = time.time()
+    reference_point = None
 
     # Processing frames
     for camera in cameras:
         camera.update_frame()
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
-        reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
+        reference_point = vision_processing.ReferencePoint.from_apriltags(camera)
+
+    if reference_point is not None:
+        communications.send_pose(reference_point.robot_pose)
+
+    communications.send_objects(dynamic_objects)
 
     # Printing FPS
     fps = 1 / (time.time() - timestamp)
