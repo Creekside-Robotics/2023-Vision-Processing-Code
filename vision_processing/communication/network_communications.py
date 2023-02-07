@@ -1,4 +1,5 @@
 import networktables
+from typing import List
 
 from ..utils import Pose, _Counter
 from ..vision.dyanmic_object import DynamicObject
@@ -17,11 +18,10 @@ class NetworkCommunication:
         self.pose_table = self.ntinst.getTable("Pose")
         self._counter = _Counter(0)
 
-    def send_object(self, obj: DynamicObject):
-        self.objects_table.putNumber("Name", obj.object_name)
-        self.objects_table.putNumber("xPos", obj.absolute_coordinates[0])
-        self.objects_table.putNumber("yPos", obj.absolute_coordinates[1])
-        self.objects_table.putNumber("counter", self._counter.next())
+    def send_objects(self, objs: List[DynamicObject]):
+        self.objects_table.putStringArray("Name", [obj.object_name for obj in objs])
+        self.objects_table.putNumberArray("xPos", [obj.absolute_coordinates[0] for obj in objs])
+        self.objects_table.putNumberArray("yPos", [obj.absolute_coordinates[1] for obj in objs])
 
     def send_pose(self, pose: Pose):
         self.pose_table.putNumber("xPos", pose.x)

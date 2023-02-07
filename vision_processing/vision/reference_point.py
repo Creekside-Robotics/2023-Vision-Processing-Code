@@ -22,7 +22,7 @@ class ReferencePoint:
         self.robot_pose = robot_to_field
 
     @classmethod
-    def from_apriltags(cls, camera: Camera) -> list["ReferencePoint"]:
+    def from_apriltags(cls, camera: Camera) -> ReferencePoint | None:
         """
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
@@ -30,36 +30,40 @@ class ReferencePoint:
         detector = apriltags.Detector(GameField.apriltag_family)
         image = cv2.cvtColor(camera.frame, cv2.COLOR_BGR2GRAY)
 
-        # noinspection PyTypeChecker
-        detections = detector.detect(
-            image,
-            estimate_tag_pose=True,
-            camera_params=(
-                camera.center_pixel_height,
-                camera.center_pixel_height,
-                camera.center.x,
-                camera.center.y,
-            ),
-            tag_size=GameField.apriltag_size,
-        )
+        best_detection = None
+        best_detection_decision_margin = 10
 
-        reference_points = [
-            cls(
+        # noinspection PyTypeChecker
+        for detection in detector.detect(
+                image,
+                estimate_tag_pose=True,
+                camera_params=(
+                        camera.center_pixel_height,
+                        camera.center_pixel_height,
+                        camera.center.x,
+                        camera.center.y,
+                ),
+                tag_size=GameField.apriltag_size,
+        ):
+            if detection.decision_margin > best_detection_decision_margin:
+                best_detection = detection
+                best_detection_decision_margin = detection.decision_margin
+
+        if best_detection is None:
+            return best_detection
+        else:
+            return cls(
                 DetectionPoseInterpretation(
-                    camera, detection
+                    camera, best_detection
                 ).get_pose_relative_to_robot(),
                 DetectionPoseInterpretation(
-                    camera, detection
-                ).get_pose_relative_to_field(),
+                    camera, best_detection
+                ).get_pose_relative_to_field()
             )
-            for detection in detections
-            if detection.decision_margin > 10 and detection.tag_id in GameField.reference_points.keys()
-        ]
-        return reference_points
 
 
 class DetectionPoseInterpretation:
-    def __init__(self, camera: Camera, detection: pyapriltags.Detection):
+    def __init__(self, camera: Camera, detection: apriltags.Detection):
         self.camera = camera
         self.detection = detection
 
@@ -76,7 +80,6 @@ class DetectionPoseInterpretation:
         )
 
     def get_data_from_detection(self) -> tuple[float, float, float, float, float]:
-
         x, y, z = (
             self.detection.pose_t[2],
             -self.detection.pose_t[0],
@@ -89,22 +92,22 @@ class DetectionPoseInterpretation:
     @staticmethod
     def angles_from_rotational_matrix(rot_mat: numpy.ndarray) -> tuple[float, float, float]:
         phi = math.atan2(rot_mat[2][1], rot_mat[2][2])
-        theta = -math.atan2(-rot_mat[2][0], math.sqrt(rot_mat[2][1]**2 + rot_mat[2][2]**2))
+        theta = -math.atan2(-rot_mat[2][0], math.sqrt(rot_mat[2][1] ** 2 + rot_mat[2][2] ** 2))
         zeta = -math.atan2(rot_mat[1][0], rot_mat[0][0])
         return theta, phi, zeta
 
     @staticmethod
     def cartesian_to_polar_translation(
-        x: float, y: float, z: float
+            x: float, y: float, z: float
     ) -> list[float, float, float]:
         return [
-            math.sqrt(x**2 + y**2 + z**2),
+            math.sqrt(x ** 2 + y ** 2 + z ** 2),
             math.atan2(y, x),
-            math.atan2(z, math.sqrt(x**2 + y**2)),
+            math.atan2(z, math.sqrt(x ** 2 + y ** 2)),
         ]
 
     def offset_pose_relative_to_robot(
-        self, polar_coordinates: list[float, float, float], theta: float, phi: float
+            self, polar_coordinates: list[float, float, float], theta: float, phi: float
     ) -> tuple[tuple[float, float, float], float, float]:
         theta += self.camera.rotational_offset[0]
         polar_coordinates[1] += self.camera.rotational_offset[0]
