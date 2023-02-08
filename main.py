@@ -10,7 +10,7 @@ communications = vision_processing.NetworkCommunication()
 
 while True:
     dynamic_objects = []
-    reference_points = None
+    reference_point = None
     timestamp = time.time()
 
     # Processing frames
