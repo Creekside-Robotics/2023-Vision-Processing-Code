@@ -16,13 +16,14 @@ from .camera import Camera
 
 
 class ReferencePoint:
-    def __init__(self, pose_to_robot: Pose, pose_to_field: Pose):
+    def __init__(self, pose_to_robot: Pose, pose_to_field: Pose, decision_margin: float):
         robot_to_reference = pose_to_robot.reverse()
         robot_to_field = robot_to_reference.relative_to_pose(pose_to_field)
         self.robot_pose = robot_to_field
+        self.decision_margin = decision_margin
 
     @classmethod
-    def from_apriltags(cls, camera: Camera) -> ReferencePoint | None:
+    def from_apriltags(cls, camera: Camera) -> list["ReferencePoint"]:
         """
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
@@ -30,8 +31,7 @@ class ReferencePoint:
         detector = apriltags.Detector(GameField.apriltag_family)
         image = cv2.cvtColor(camera.frame, cv2.COLOR_BGR2GRAY)
 
-        best_detection = None
-        best_detection_decision_margin = 10
+        reference_points = []
 
         # noinspection PyTypeChecker
         for detection in detector.detect(
@@ -45,21 +45,19 @@ class ReferencePoint:
                 ),
                 tag_size=GameField.apriltag_size,
         ):
-            if detection.decision_margin > best_detection_decision_margin:
-                best_detection = detection
-                best_detection_decision_margin = detection.decision_margin
-
-        if best_detection is None:
-            return best_detection
-        else:
-            return cls(
-                DetectionPoseInterpretation(
-                    camera, best_detection
-                ).get_pose_relative_to_robot(),
-                DetectionPoseInterpretation(
-                    camera, best_detection
-                ).get_pose_relative_to_field()
-            )
+            if detection.decision_margin > 10:
+                reference_points.append(
+                    cls(
+                        DetectionPoseInterpretation(
+                            camera, detection
+                        ).get_pose_relative_to_robot(),
+                        DetectionPoseInterpretation(
+                            camera, detection
+                        ).get_pose_relative_to_field(),
+                        detection.decision_margin
+                    )
+                )
+        return reference_points
 
 
 class DetectionPoseInterpretation:
