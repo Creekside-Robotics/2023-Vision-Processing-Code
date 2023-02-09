@@ -1,9 +1,9 @@
 import time
 import math
+from operator import attrgetter
 
 import vision_processing
 import testing
-
 
 cameras = [
     vision_processing.Camera(
@@ -13,23 +13,23 @@ cameras = [
         "testing/testing_resources/HyperClock Test Video.mp4"
     )
 ]
-object_detection = vision_processing.DynamicObjectProcessing()
 
+object_detection = vision_processing.DynamicObjectProcessing()
 communications = testing.TestNetworkCommunication()
 
 while True:
     dynamic_objects = []
+    reference_points = []
     timestamp = time.time()
-    reference_point = None
 
     # Processing frames
     for camera in cameras:
         camera.update_frame()
         dynamic_objects.extend(object_detection.get_dynamic_objects(camera))
-        reference_point = vision_processing.ReferencePoint.from_apriltags(camera)
+        reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
-    if reference_point is not None:
-        communications.send_pose(reference_point.robot_pose)
+    if reference_points:
+        communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
 
     communications.send_objects(dynamic_objects)
 
