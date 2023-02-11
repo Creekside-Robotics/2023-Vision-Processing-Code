@@ -1,22 +1,20 @@
 import time
 from operator import attrgetter
 
+from typing import List
+
 import vision_processing
-import testing
 
 
 class PipelineRunner:
-    def __init__(self, test: bool = False):
-        self.communications = vision_processing.NetworkCommunication()
-        self.cameras = [vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras]
+    def __init__(
+            self,
+            communications: vision_processing.NetworkCommunication = vision_processing.NetworkCommunication(),
+            cameras: List[vision_processing.Camera] = (vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras)
+    ):
+        self.communications = communications
+        self.cameras = cameras
         self.object_detection = vision_processing.DynamicObjectProcessing()
-
-        if test:
-            self.setup_testing()
-
-    def setup_testing(self):
-        self.communications = testing.TestNetworkCommunication()
-        self.cameras = [vision_processing.Camera.from_list(vision_processing.GameField.test_camera)]
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
