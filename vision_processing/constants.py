@@ -9,14 +9,14 @@ class GameField:
     dead_zones = [Box(Translation(6*0.4572, 3*0.4572), Translation(8*0.4572, 5*0.4572))]
 
     reference_points = {
-        1: Pose(Translation(15.513558, 1.071626), math.pi),
-        2: Pose(Translation(15.513558, 2.748026), math.pi),
-        3: Pose(Translation(15.513558, 4.424426), math.pi),
-        4: Pose(Translation(16.178784, 6.749796), math.pi),
-        5: Pose(Translation(0.36195, 6.749796), 0),
-        6: Pose(Translation(1.02743, 4.424426), 0),
-        7: Pose(Translation(1.02743, 2.748026), 0),
-        8: Pose(Translation(1.02743, 1.071626), 0)
+        1: Pose(Translation(15.513558, 1.071626), 0),
+        2: Pose(Translation(15.513558, 2.748026), 0),
+        3: Pose(Translation(15.513558, 4.424426), 0),
+        4: Pose(Translation(16.178784, 6.749796), 0),
+        5: Pose(Translation(0.36195, 6.749796), math.pi),
+        6: Pose(Translation(1.02743, 4.424426), math.pi),
+        7: Pose(Translation(1.02743, 2.748026), math.pi),
+        8: Pose(Translation(1.02743, 1.071626), math.pi)
     }
 
     apriltag_size = 0.1524
