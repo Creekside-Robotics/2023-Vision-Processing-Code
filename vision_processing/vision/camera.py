@@ -28,7 +28,7 @@ class Camera:
         self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
         self.translational_offset: Tuple[float, float, float] = translational_offset
         self.rotational_offset: Tuple[float, float] = rotational_offset
-        self.center: Pixel = Pixel(self.frame.shape[1] // 2, self.frame.shape[0] // 2)
+        self.center: Pixel = Pixel(self.get_frame().shape[1] // 2, self.get_frame().shape[0] // 2)
 
         # If there was a vertical line, extending from the center of the image,
         # allowing us to see shape of the camera capture, this would be its height in pixels.
