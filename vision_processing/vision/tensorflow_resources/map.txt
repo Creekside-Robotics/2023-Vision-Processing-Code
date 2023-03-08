@@ -1,3 +1,2 @@
-Red Robot
-Blue Robot
-Ball
+Cone
+Cube
