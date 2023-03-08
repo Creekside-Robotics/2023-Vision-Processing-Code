@@ -61,10 +61,20 @@ class BBox(collections.namedtuple("BBox", ["xmin", "ymin", "xmax", "ymax"])):
 class DynamicObjectProcessing:
     def __init__(self):
         print("Initializing TFLite runtime interpreter")
-
-        model_path = "vision_processing/vision/tensorflow_resources/unoptimized.tflite"
-        self.interpreter = tf.Interpreter(model_path)
-        self.hardware_type = "Unoptimized"
+        try:
+            model_path = "vision_processing/vision/tensorflow_resources/model.tflite"
+            self.interpreter = tf.Interpreter(
+                model_path,
+                experimental_delegates=[
+                    tf.load_delegate("libedgetpu.so.1")
+                ],
+            )
+            self.hardware_type = "Coral Edge TPU"
+        except:
+            print("Failed to create Interpreter with Coral, switching to unoptimized")
+            model_path = "vision_processing/vision/tensorflow_resources/unoptimized.tflite"
+            self.interpreter = tf.Interpreter(model_path)
+            self.hardware_type = "Unoptimized"
 
         self.interpreter.allocate_tensors()
         print("Getting labels")
