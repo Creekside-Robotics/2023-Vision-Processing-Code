@@ -45,7 +45,7 @@ class ReferencePoint:
                 ),
                 tag_size=GameField.apriltag_size,
         ):
-            if detection.decision_margin > 10:
+            if detection.decision_margin > 10 and (detection.tag_id in GameField.reference_points.keys()):
                 reference_points.append(
                     cls(
                         DetectionPoseInterpretation(
