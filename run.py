@@ -27,7 +27,6 @@ class PipelineRunner:
 
             # Processing frames
             for camera in self.cameras:
-                camera.update_frame()
                 dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
                 reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
