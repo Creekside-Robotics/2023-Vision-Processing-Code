@@ -31,7 +31,10 @@ class PipelineRunner:
                 reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
             if reference_points:
-                self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
+                try:
+                    self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
+                except:
+                    print("AprilTag not detected.")
 
             self.communications.send_objects(dynamic_objects)
 
