@@ -86,8 +86,8 @@ class DynamicObjectProcessing:
     def get_dynamic_objects(self, cam: "Camera") -> list[DynamicObject]:
         start = time()
         # Acquire frame and resize to expected shape [1xHxWx3]
-        frame_cv2 = cam.frame
-        frame_time = cam.frame_time
+        frame_cv2 = cam.get_frame()
+        frame_time = cam.get_frame_time()
 
         # input
         scale = self.set_input(frame_cv2)

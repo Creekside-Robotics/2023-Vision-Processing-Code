@@ -28,9 +28,7 @@ class Camera:
         self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
         self.translational_offset: Tuple[float, float, float] = translational_offset
         self.rotational_offset: Tuple[float, float] = rotational_offset
-        self.frame: np.ndarray = self.input_feed.read()[1]
         self.center: Pixel = Pixel(self.frame.shape[1] // 2, self.frame.shape[0] // 2)
-        self.frame_time = time()
 
         # If there was a vertical line, extending from the center of the image,
         # allowing us to see shape of the camera capture, this would be its height in pixels.
@@ -55,10 +53,10 @@ class Camera:
             parameter_list[3]
         )
 
-    def update_frame(self) -> None:
-        self.frame = self.input_feed.read()[1]
-        self.frame_time = time()
-
+    def get_frame_time(self):
+        return time()
+    def get_frame(self):
+        return self.input_feed.read()[1]
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
     ) -> Tuple[Translation, float]:
