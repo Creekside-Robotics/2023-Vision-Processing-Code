@@ -29,7 +29,7 @@ class ReferencePoint:
         :rtype ReferencePoint
         """
         detector = apriltags.Detector(GameField.apriltag_family)
-        image = cv2.cvtColor(camera.frame, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
 
         reference_points = []
 
