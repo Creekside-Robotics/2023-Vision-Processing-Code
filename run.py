@@ -1,4 +1,5 @@
 import time
+import gc
 from operator import attrgetter
 
 from typing import List
@@ -37,6 +38,8 @@ class PipelineRunner:
                     print("AprilTag not detected.")
 
             self.communications.send_objects(dynamic_objects)
+
+            gc.collect()
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
