@@ -34,7 +34,6 @@ class ReferencePoint:
         """
         print("1" + str(tracemalloc.get_traced_memory()))
         image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
-        gc.collect()
         print("2" + str(tracemalloc.get_traced_memory()))
 
         reference_points = []
