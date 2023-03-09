@@ -27,6 +27,8 @@ class PipelineRunner:
             reference_points = []
             timestamp = time.time()
 
+            tracemalloc.start()
+
             # Processing frames
             for camera in self.cameras:
                 dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
