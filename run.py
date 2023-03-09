@@ -20,6 +20,7 @@ class PipelineRunner:
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
+        tracemalloc.start()
         while cycle_count != num_of_cycles:
             cycle_count += 1
 
@@ -27,12 +28,21 @@ class PipelineRunner:
             reference_points = []
             timestamp = time.time()
 
-            tracemalloc.start()
 
             # Processing frames
             for camera in self.cameras:
+                print("Memory Stats")
+                print(tracemalloc.get_traced_memory())
+
                 dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
+
+                print("Memory Stats")
+                print(tracemalloc.get_traced_memory())
+
                 reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
+
+            print("Memory Stats")
+            print(tracemalloc.get_traced_memory())
 
             if reference_points:
                 try:
@@ -40,15 +50,18 @@ class PipelineRunner:
                 except:
                     print("AprilTag not detected.")
 
+            print("Memory Stats")
+            print(tracemalloc.get_traced_memory())
+
             self.communications.send_objects(dynamic_objects)
+
+            print("Memory Stats")
+            print(tracemalloc.get_traced_memory())
 
             gc.collect()
 
-            snapshot = tracemalloc.take_snapshot()
-            top_stats = snapshot.statistics('lineno')
-
-            for stat in top_stats[:10]:
-                print(stat)
+            print("Memory Stats")
+            print(tracemalloc.get_traced_memory())
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
