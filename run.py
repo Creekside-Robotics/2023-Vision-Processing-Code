@@ -58,6 +58,9 @@ class PipelineRunner:
             print("Memory Stats")
             print(tracemalloc.get_traced_memory())
 
+            reference_points = None
+            dynamic_objects = None
+
             gc.collect()
 
             print("Memory Stats")
