@@ -1,7 +1,5 @@
 import time
-import gc
 from operator import attrgetter
-import tracemalloc
 
 from typing import List
 
@@ -20,7 +18,6 @@ class PipelineRunner:
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
-        tracemalloc.start()
         while cycle_count != num_of_cycles:
             cycle_count += 1
 
@@ -28,43 +25,20 @@ class PipelineRunner:
             reference_points = []
             timestamp = time.time()
 
-
             # Processing frames
             for camera in self.cameras:
-                print("Memory Stats")
-                print(tracemalloc.get_traced_memory())
-
                 dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
 
-                print("Memory Stats")
-                print(tracemalloc.get_traced_memory())
+                #reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
-                reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
-            print("Memory Stats")
-            print(tracemalloc.get_traced_memory())
-
-            if reference_points:
-                try:
-                    self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
-                except:
-                    print("AprilTag not detected.")
-
-            print("Memory Stats")
-            print(tracemalloc.get_traced_memory())
+            # if reference_points:
+            #     try:
+            #         self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
+            #     except:
+            #         print("AprilTag not detected.")
 
             self.communications.send_objects(dynamic_objects)
-
-            print("Memory Stats")
-            print(tracemalloc.get_traced_memory())
-
-            reference_points = None
-            dynamic_objects = None
-
-            gc.collect()
-
-            print("Memory Stats")
-            print(tracemalloc.get_traced_memory())
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
