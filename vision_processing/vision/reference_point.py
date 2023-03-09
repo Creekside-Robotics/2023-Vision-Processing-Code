@@ -18,6 +18,8 @@ from .camera import Camera
 
 
 class ReferencePoint:
+    detector = apriltags.Detector(GameField.apriltag_family)
+
     def __init__(self, pose_to_robot: Pose, pose_to_field: Pose, decision_margin: float):
         robot_to_reference = pose_to_robot.reverse()
         robot_to_field = robot_to_reference.relative_to_pose(pose_to_field)
@@ -30,8 +32,6 @@ class ReferencePoint:
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
         """
-        print("0" + str(tracemalloc.get_traced_memory()))
-        detector = apriltags.Detector(GameField.apriltag_family)
         print("1" + str(tracemalloc.get_traced_memory()))
         image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
         gc.collect()
@@ -40,7 +40,7 @@ class ReferencePoint:
         reference_points = []
 
         # noinspection PyTypeChecker
-        for detection in detector.detect(
+        for detection in cls.detector.detect(
                 image,
                 estimate_tag_pose=True,
                 camera_params=(
