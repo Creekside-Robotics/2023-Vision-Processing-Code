@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import gc
 import math
-import tracemalloc
 
 import cv2
 import numpy
@@ -32,10 +30,7 @@ class ReferencePoint:
         Create a List of ReferencePoint from an image
         :rtype ReferencePoint
         """
-        print("1" + str(tracemalloc.get_traced_memory()))
         image = cv2.cvtColor(camera.get_frame(), cv2.COLOR_BGR2GRAY)
-        print("2" + str(tracemalloc.get_traced_memory()))
-
         reference_points = []
 
         # noinspection PyTypeChecker
@@ -62,7 +57,6 @@ class ReferencePoint:
                         detection.decision_margin
                     )
                 )
-        print("3" + str(tracemalloc.get_traced_memory()))
         return reference_points
 
 
