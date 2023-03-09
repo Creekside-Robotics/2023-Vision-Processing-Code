@@ -2,6 +2,7 @@ import time
 from operator import attrgetter
 
 from typing import List
+import tracemalloc
 
 import vision_processing
 
@@ -16,10 +17,13 @@ class PipelineRunner:
         self.cameras = cameras
         self.object_detection = vision_processing.DynamicObjectProcessing()
 
+    tracemalloc.start()
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
         while cycle_count != num_of_cycles:
             cycle_count += 1
+
+            print(tracemalloc.get_traced_memory())
 
             dynamic_objects = []
             reference_points = []
@@ -30,7 +34,6 @@ class PipelineRunner:
                 # dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
 
                 reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
-
 
             if reference_points:
                 try:
