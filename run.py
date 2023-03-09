@@ -1,6 +1,7 @@
 import time
 import gc
 from operator import attrgetter
+import tracemalloc
 
 from typing import List
 
@@ -19,6 +20,7 @@ class PipelineRunner:
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
+        tracemalloc.start()
         while cycle_count != num_of_cycles:
             cycle_count += 1
 
@@ -40,6 +42,7 @@ class PipelineRunner:
             self.communications.send_objects(dynamic_objects)
 
             gc.collect()
+            print(tracemalloc.get_traced_memory())
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
