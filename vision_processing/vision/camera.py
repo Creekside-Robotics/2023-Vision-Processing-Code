@@ -56,8 +56,6 @@ class Camera:
     def get_frame_time(self):
         return time()
     def get_frame(self):
-        self.input_feed.release()
-        self.input_feed = cv2.VideoCapture(self.port_id)
         return self.input_feed.read()[1]
 
     def get_dynamic_object_translation(

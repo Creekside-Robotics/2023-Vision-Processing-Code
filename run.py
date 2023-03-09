@@ -42,6 +42,12 @@ class PipelineRunner:
 
             gc.collect()
 
+            snapshot = tracemalloc.take_snapshot()
+            top_stats = snapshot.statistics('lineno')
+
+            for stat in top_stats[:10]:
+                print(stat)
+
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
             print(f"Cycle {cycle_count} was successful.\nFPS: {round(fps, 3)}")
