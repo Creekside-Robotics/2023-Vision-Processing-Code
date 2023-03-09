@@ -32,8 +32,9 @@ class PipelineRunner:
             # Processing frames
             for camera in self.cameras:
                 # dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
-
+                print("Before" + str(tracemalloc.get_traced_memory()))
                 reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
+                print("After" + str(tracemalloc.get_traced_memory()))
 
             if reference_points:
                 try:
