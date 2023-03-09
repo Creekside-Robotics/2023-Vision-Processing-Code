@@ -2,7 +2,6 @@ import math
 from time import time
 
 import cv2
-import numpy as np
 from typing import Tuple
 
 from ..utils import Pixel, Translation
@@ -25,7 +24,8 @@ class Camera:
         :param port_id: camera id - for testing put the path to a video
         :type port_id: Any
         """
-        self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
+        self.port_id = port_id
+        self.input_feed: cv2.VideoCapture = cv2.VideoCapture(self.port_id)
         self.translational_offset: Tuple[float, float, float] = translational_offset
         self.rotational_offset: Tuple[float, float] = rotational_offset
         self.center: Pixel = Pixel(self.get_frame().shape[1] // 2, self.get_frame().shape[0] // 2)
@@ -56,7 +56,10 @@ class Camera:
     def get_frame_time(self):
         return time()
     def get_frame(self):
+        self.input_feed.release()
+        self.input_feed = cv2.VideoCapture(self.port_id)
         return self.input_feed.read()[1]
+
     def get_dynamic_object_translation(
         self, bbox_left: Pixel, bbox_right: Pixel
     ) -> Tuple[Translation, float]:
