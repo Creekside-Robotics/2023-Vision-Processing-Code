@@ -27,18 +27,18 @@ class PipelineRunner:
 
             # Processing frames
             for camera in self.cameras:
-                dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
+                # dynamic_objects.extend(self.object_detection.get_dynamic_objects(camera))
 
-                #reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
+                reference_points.extend(vision_processing.ReferencePoint.from_apriltags(camera))
 
 
-            # if reference_points:
-            #     try:
-            #         self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
-            #     except:
-            #         print("AprilTag not detected.")
+            if reference_points:
+                try:
+                    self.communications.send_pose(max(reference_points, key=attrgetter("decision_margin")).robot_pose)
+                except:
+                    print("AprilTag not detected.")
 
-            self.communications.send_objects(dynamic_objects)
+            # self.communications.send_objects(dynamic_objects)
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
