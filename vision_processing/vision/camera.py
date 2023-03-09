@@ -26,6 +26,7 @@ class Camera:
         :type port_id: Any
         """
         self.input_feed: cv2.VideoCapture = cv2.VideoCapture(port_id)
+        self.input_feed.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y', 'U', 'V', 'U'))
         self.translational_offset: Tuple[float, float, float] = translational_offset
         self.rotational_offset: Tuple[float, float] = rotational_offset
         self.center: Pixel = Pixel(self.get_frame().shape[1] // 2, self.get_frame().shape[0] // 2)
