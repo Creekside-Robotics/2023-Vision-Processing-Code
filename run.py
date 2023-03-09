@@ -41,8 +41,8 @@ class PipelineRunner:
 
             self.communications.send_objects(dynamic_objects)
 
-            gc.collect()
             print(tracemalloc.get_traced_memory())
+            gc.collect()
 
             # Printing FPS
             fps = 1 / (time.time() - timestamp)
