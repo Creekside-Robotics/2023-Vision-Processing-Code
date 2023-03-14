@@ -46,3 +46,6 @@ class PipelineRunner:
             # Printing FPS
             fps = 1 / ((time.time() - timestamp) or 1e-9)  # prevent divide-by-zero
             print(f"Cycle {cycle_count} was successful.\nFPS: {round(fps, 3)}")
+
+if __name__ == "__main__":
+    PipelineRunner().run()
