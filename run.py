@@ -10,11 +10,16 @@ class PipelineRunner:
     def __init__(
             self,
             communications: vision_processing.NetworkCommunication = vision_processing.NetworkCommunication(),
-            cameras: List[vision_processing.Camera] = (vision_processing.Camera.from_list(camera) for camera in vision_processing.GameField.cameras)
+            cameras: List[vision_processing.Camera] = None
     ):
         self.communications = communications
-        self.cameras = cameras
         self.object_detection = vision_processing.DynamicObjectProcessing()
+
+        if cameras is None:
+            self.cameras = [
+                vision_processing.Camera.from_list(camera)
+                for camera in vision_processing.GameField.cameras
+            ]
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
@@ -39,5 +44,5 @@ class PipelineRunner:
             self.communications.send_objects(dynamic_objects)
 
             # Printing FPS
-            fps = 1 / (time.time() - timestamp)
+            fps = 1 / ((time.time() - timestamp) or 1e-9)  # prevent divide-by-zero
             print(f"Cycle {cycle_count} was successful.\nFPS: {round(fps, 3)}")
