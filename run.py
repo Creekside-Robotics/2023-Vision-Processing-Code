@@ -20,6 +20,8 @@ class PipelineRunner:
                 vision_processing.Camera.from_list(camera)
                 for camera in vision_processing.GameField.cameras
             ]
+        else:
+            self.cameras = cameras
 
     def run(self, num_of_cycles: int = -1):
         cycle_count = 0
