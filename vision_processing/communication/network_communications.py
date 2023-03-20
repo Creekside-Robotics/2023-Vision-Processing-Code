@@ -20,8 +20,8 @@ class NetworkCommunication:
 
     def send_objects(self, objs: List[DynamicObject]):
         self.objects_table.putStringArray("Name", [obj.object_name for obj in objs])
-        self.objects_table.putNumberArray("xPos", [obj.absolute_coordinates[0] for obj in objs])
-        self.objects_table.putNumberArray("yPos", [obj.absolute_coordinates[1] for obj in objs])
+        self.objects_table.putNumberArray("xPos", [obj.relative_coordinates[0] for obj in objs])
+        self.objects_table.putNumberArray("yPos", [obj.relative_coordinates[1] for obj in objs])
 
     def send_pose(self, pose: Pose):
         self.pose_table.putNumber("xPos", pose.x)
